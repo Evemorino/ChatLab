@@ -98,5 +98,9 @@ jobs:
       - name: Type check (node)
         run: pnpm run type-check:node
 
+      # build:web-wasm 只做 vite 打包，不校验类型；这一步是 src/ 共享前端唯一的类型门禁。
+      - name: Type check (web)
+        run: pnpm run type-check:web
+
       - name: Build Web WASM
         run: pnpm run build:web-wasm
