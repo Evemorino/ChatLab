@@ -1,4 +1,4 @@
-import { IS_ELECTRON, IS_WEB_WASM } from './platform'
+import { IS_ELECTRON } from './platform'
 
 const LOCALE_PATH_MAP: Record<string, string> = {
   'en-US': 'en',
@@ -9,15 +9,14 @@ const LOCALE_PATH_MAP: Record<string, string> = {
 
 /**
  * chatlab.fun 的基础 URL。
- * Electron 与 Web WASM 直接访问远程；CLI Web 通过 Vite dev proxy 避免 CORS。
+ * Electron 直接访问远程；CLI Web 通过 Vite dev proxy 避免 CORS。
  */
-export function resolveChatlabSiteBase(flags: { isElectron: boolean; isWebWasm: boolean }): string {
-  return flags.isElectron || flags.isWebWasm ? 'https://chatlab.fun' : '/_proxy/chatlab.fun'
+export function resolveChatlabSiteBase(flags: { isElectron: boolean }): string {
+  return flags.isElectron ? 'https://chatlab.fun' : '/_proxy/chatlab.fun'
 }
 
 export const CHATLAB_SITE_BASE = resolveChatlabSiteBase({
   isElectron: IS_ELECTRON,
-  isWebWasm: IS_WEB_WASM,
 })
 
 /**

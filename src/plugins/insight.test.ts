@@ -51,23 +51,8 @@ test('registers annual summary as a removable Desktop and CLI Web contribution',
   assert.equal(uiHost.locale.translate(title), 'title')
 })
 
-test('keeps the annual summary plugin out of Web WASM', () => {
-  const { uiHost, localeHost } = createTestHost()
-  const runtime = createInsightPluginRuntime('web-wasm', uiHost, localeHost, [
-    annualSummaryPlugin,
-    timeInvestmentPlugin,
-  ])
-
-  assert.equal(runtime.isActive(annualSummaryPlugin.id), false)
-  assert.equal(runtime.isActive(timeInvestmentPlugin.id), true)
-  assert.deepEqual(
-    listInsightShellPages(runtime).map((page) => page.id),
-    ['time-investment']
-  )
-})
-
 test('registers time investment on every platform and removes all of its contributions', () => {
-  for (const platform of ['electron', 'cli-web', 'web-wasm'] as const) {
+  for (const platform of ['electron', 'cli-web'] as const) {
     const { uiHost, localeHost } = createTestHost()
     const runtime = createInsightPluginRuntime(platform, uiHost, localeHost, [timeInvestmentPlugin])
     const title = runtime.getPage('time-investment')!.title

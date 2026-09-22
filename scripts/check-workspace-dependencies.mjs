@@ -14,7 +14,6 @@ const ignoredDirectories = new Set([
   'coverage',
   'dist',
   'dist-cli-web',
-  'dist-web-wasm',
   'node_modules',
   'out',
   'target',

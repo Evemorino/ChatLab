@@ -12,7 +12,6 @@ const SKIP_DIRS = new Set([
   'node_modules',
   'dist',
   'dist-cli-web',
-  'dist-web-wasm',
   'out',
   'build',
   'coverage',

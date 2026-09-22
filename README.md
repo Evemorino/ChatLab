@@ -114,7 +114,6 @@ Or launch a specific target directly:
 ```bash
 pnpm dev:desktop   # Electron desktop app
 pnpm dev:cli-web   # CLI Web frontend + local server
-pnpm dev:web-wasm  # Browser-only Web WASM
 pnpm dev:serve     # CLI server only
 pnpm docs:dev      # Docs site
 ```

@@ -114,7 +114,6 @@ pnpm dev
 ```bash
 pnpm dev:desktop   # Electron 桌面端
 pnpm dev:cli-web   # CLI Web 前端 + 本地服务
-pnpm dev:web-wasm  # 纯浏览器 Web WASM
 pnpm dev:serve     # 仅 CLI 服务端
 pnpm docs:dev      # 文档站
 ```

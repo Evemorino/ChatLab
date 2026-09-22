@@ -269,7 +269,7 @@ function chatTypeLabel(type: ChatType): string {
   <main class="min-h-0 flex-1 overflow-y-auto">
     <div class="mx-auto w-full max-w-[920px] space-y-6 px-4 py-5 sm:px-6 sm:py-6">
       <button
-        v-if="ownerIssueCount > 0 && timeInvestmentService.canConfigureOwner"
+        v-if="ownerIssueCount > 0"
         type="button"
         class="inline-flex w-fit max-w-full items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-left text-xs text-amber-800 transition-colors hover:bg-amber-100 dark:bg-amber-950/20 dark:text-amber-300 dark:hover:bg-amber-950/30"
         @click="openSessions"

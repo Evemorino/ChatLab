@@ -157,7 +157,6 @@ export default defineConfig({
   },
   define: {
     __IS_ELECTRON__: JSON.stringify(false),
-    __IS_WEB_WASM__: JSON.stringify(false),
     __APP_VERSION__: JSON.stringify(JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 'utf-8')).version),
   },
   plugins: [

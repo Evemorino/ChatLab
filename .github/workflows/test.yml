@@ -46,20 +46,6 @@ jobs:
 
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: wasm32-unknown-unknown
-
-      - name: Install wasm-pack
-        shell: bash
-        run: |
-          archive="$RUNNER_TEMP/wasm-pack.tar.gz"
-          directory="$RUNNER_TEMP/wasm-pack-v0.15.0-x86_64-unknown-linux-musl"
-          curl --proto '=https' --tlsv1.2 -LsSf \
-            https://github.com/wasm-bindgen/wasm-pack/releases/download/v0.15.0/wasm-pack-v0.15.0-x86_64-unknown-linux-musl.tar.gz \
-            -o "$archive"
-          echo "c09f971ecaed9a2efc80fdcea7a00ef6b53c7fadc8c57d1f61b53a6aa66b668a  $archive" | sha256sum -c -
-          tar -xzf "$archive" -C "$RUNNER_TEMP"
-          install -m 755 "$directory/wasm-pack" "$CARGO_HOME/bin/wasm-pack"
 
       - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2
@@ -84,9 +70,6 @@ jobs:
         working-directory: packages/parser-native
         run: cargo test
 
-      - name: Build browser parser WASM
-        run: pnpm run build:parser-wasm
-
       # Debug 构建足够触发 TS 侧 parity 测试（native 缺失时这些测试会自动 skip，
       # 构建后即可在 CI 上真实覆盖 Rust/TS 双路径一致性）。
       - name: Build native parser (debug)
@@ -98,9 +81,6 @@ jobs:
       - name: Type check (node)
         run: pnpm run type-check:node
 
-      # build:web-wasm 只做 vite 打包，不校验类型；这一步是 src/ 共享前端唯一的类型门禁。
+      # vite 打包不做类型检查，这一步是 src/ 共享前端唯一的类型门禁。
       - name: Type check (web)
         run: pnpm run type-check:web
-
-      - name: Build Web WASM
-        run: pnpm run build:web-wasm

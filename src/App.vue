@@ -31,7 +31,7 @@ import { redirectFromHiddenInsightPage } from '@/navigation/router'
 import type { PresentationPreferences } from '@/services/preferences/types'
 import { resolvePageTransitionKey } from '@/routes/page-transition-key'
 import { useLockScreenBootstrap } from '@/components/lock-screen/bootstrap'
-import { initializeAppRuntime, initializeProgressiveAppRuntime } from '@/bootstrap/app-initialization'
+import { initializeProgressiveAppRuntime } from '@/bootstrap/app-initialization'
 import { markStartupPhase, markStartupPhaseAfterPaint } from '@/bootstrap/startup-performance'
 import { resolveStartupPresentation } from '@/bootstrap/startup-presentation'
 import { STARTUP_PAGE_REVEAL_READY_KEY } from '@/bootstrap/startup-page-reveal'
@@ -166,113 +166,78 @@ async function initializeApp() {
   initError.value = null
   presentationWarning.value = false
   try {
-    if (!PLATFORM_CAPABILITIES.usesBrowserRuntime) {
-      let presentationPromise: Promise<PresentationPreferences> | undefined
-      let presentationInitialized = false
-      const result = await initializeProgressiveAppRuntime({
-        initializeServices: async () => {
-          await initServices()
-          markStartupPhase('services-ready')
-        },
-        loadPresentation: () => {
-          presentationPromise ??= loadPresentationPreferences()
-          return presentationPromise
-        },
-        applyPresentation: async (presentation) => {
-          applyPresentationPreferences(presentation)
-          presentationInitialized = true
-          await settingsStore.initLocale()
-          markStartupPhase('locale-settled')
-        },
-        applyPresentationFallback: async () => {
-          await settingsStore.initLocale()
-          markStartupPhase('locale-settled')
-        },
-        deferAfterPresentationError: () =>
-          PLATFORM_CAPABILITIES.requiresAuth && authStore.requiresAuth && !authStore.isAuthenticated,
-        initializeShell: hydrateNavigationLayout,
-        initializeBackground: [
-          {
-            name: 'preferences',
-            run: async () => {
-              try {
-                await initPreferencesSync({
-                  presentationInitialized,
-                  presentationPromise,
-                  hydratePresentationLocale: false,
-                })
-              } finally {
-                markStartupPhase('preferences-settled')
-              }
-            },
-          },
-          {
-            name: 'llm',
-            run: async () => {
-              try {
-                await llmStore.init()
-              } finally {
-                markStartupPhase('llm-settled')
-              }
-            },
-          },
-          {
-            name: 'sessions',
-            run: async () => {
-              try {
-                await sessionStore.loadSessions({ throwOnError: true })
-              } finally {
-                markStartupPhase('sessions-settled')
-              }
-            },
-          },
-        ],
-        listenForPullResults: () => apiServerStore.listenPullResult(),
-      })
-      // 401 会先切换到登录页；不要把这次未认证尝试标记为就绪，登录后由 route watcher 完整重试。
-      if (result.deferred) return
-      unlistenPullResult ??= result.stopListeningForPullResults
-      presentationWarning.value = result.presentationError !== null
-      markStartupPhase('runtime-ready')
-      isRuntimeReady.value = true
-      void result.background.then((failures) => {
-        failures.forEach(({ name, error }) => console.error(`[Startup] Background task failed: ${name}`, error))
-        markStartupPhase('startup-settled')
-      })
-      usePlatformService()
-        .trackDailyActive(settingsStore.locale)
-        .catch(() => {})
-      return
-    }
-
-    const result = await initializeAppRuntime({
-      capabilities: PLATFORM_CAPABILITIES,
+    let presentationPromise: Promise<PresentationPreferences> | undefined
+    let presentationInitialized = false
+    const result = await initializeProgressiveAppRuntime({
       initializeServices: async () => {
         await initServices()
         markStartupPhase('services-ready')
       },
-      initializePreferences: async () => {
-        await initPreferencesSync()
-        markStartupPhase('preferences-settled')
+      loadPresentation: () => {
+        presentationPromise ??= loadPresentationPreferences()
+        return presentationPromise
       },
-      initializeLocale: async () => {
+      applyPresentation: async (presentation) => {
+        applyPresentationPreferences(presentation)
+        presentationInitialized = true
         await settingsStore.initLocale()
         markStartupPhase('locale-settled')
       },
-      initializeLlm: async () => {
-        await llmStore.init()
-        markStartupPhase('llm-settled')
+      applyPresentationFallback: async () => {
+        await settingsStore.initLocale()
+        markStartupPhase('locale-settled')
       },
-      loadSessions: async () => {
-        await sessionStore.loadSessions()
-        markStartupPhase('sessions-settled')
-      },
+      deferAfterPresentationError: () =>
+        PLATFORM_CAPABILITIES.requiresAuth && authStore.requiresAuth && !authStore.isAuthenticated,
+      initializeShell: hydrateNavigationLayout,
+      initializeBackground: [
+        {
+          name: 'preferences',
+          run: async () => {
+            try {
+              await initPreferencesSync({
+                presentationInitialized,
+                presentationPromise,
+                hydratePresentationLocale: false,
+              })
+            } finally {
+              markStartupPhase('preferences-settled')
+            }
+          },
+        },
+        {
+          name: 'llm',
+          run: async () => {
+            try {
+              await llmStore.init()
+            } finally {
+              markStartupPhase('llm-settled')
+            }
+          },
+        },
+        {
+          name: 'sessions',
+          run: async () => {
+            try {
+              await sessionStore.loadSessions({ throwOnError: true })
+            } finally {
+              markStartupPhase('sessions-settled')
+            }
+          },
+        },
+      ],
       listenForPullResults: () => apiServerStore.listenPullResult(),
     })
+    // 401 会先切换到登录页；不要把这次未认证尝试标记为就绪，登录后由 route watcher 完整重试。
+    if (result.deferred) return
     unlistenPullResult ??= result.stopListeningForPullResults
+    presentationWarning.value = result.presentationError !== null
     markStartupPhase('runtime-ready')
     isRuntimeReady.value = true
-    markStartupPhase('startup-settled')
+    void result.background.then((failures) => {
+      failures.forEach(({ name, error }) => console.error(`[Startup] Background task failed: ${name}`, error))
+      markStartupPhase('startup-settled')
+    })
     usePlatformService()
       .trackDailyActive(settingsStore.locale)
       .catch(() => {})

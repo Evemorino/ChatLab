@@ -6,11 +6,7 @@ export function chatlabIconBundle(rootDir: string): PluginOption {
   return NuxtIconBundle({
     cwd: rootDir,
     scan: {
-      globInclude: [
-        'src/**/*.{vue,ts,tsx}',
-        'apps/web-wasm/src/**/*.{vue,ts,tsx}',
-        'node_modules/@nuxt/ui/dist/**/*.{vue,js,mjs,ts}',
-      ],
+      globInclude: ['src/**/*.{vue,ts,tsx}', 'node_modules/@nuxt/ui/dist/**/*.{vue,js,mjs,ts}'],
       globExclude: [],
     },
   })

@@ -6,27 +6,17 @@
  * getAdapter<T>(key) 获取已注册的实例。
  */
 
-import { IS_ELECTRON, IS_WEB_WASM } from '@/utils/platform'
+import { IS_ELECTRON } from '@/utils/platform'
 import { fetchWithAuth } from './utils/http'
 
-export type Platform = 'electron' | 'cli-web' | 'web-wasm'
+export type Platform = 'electron' | 'cli-web'
 
 export interface PlatformFlags {
   isElectron: boolean
-  isWebWasm: boolean
 }
 
-interface ServiceAdapterRegistrar {
-  register(key: string, adapter: unknown): void
-}
-
-export interface InitServicesOptions {
-  initializeWebWasm?: (registry: ServiceAdapterRegistrar) => void | Promise<void>
-}
-
-export function detectPlatform(flags: PlatformFlags = { isElectron: IS_ELECTRON, isWebWasm: IS_WEB_WASM }): Platform {
+export function detectPlatform(flags: PlatformFlags = { isElectron: IS_ELECTRON }): Platform {
   if (flags.isElectron) return 'electron'
-  if (flags.isWebWasm) return 'web-wasm'
   return 'cli-web'
 }
 
@@ -53,27 +43,18 @@ export function isInitialized(): boolean {
  * 初始化所有 Service Adapter。
  * 应用启动时调用一次（App.vue 或 main.ts）。
  */
-export async function initServices(options: InitServicesOptions = {}): Promise<void> {
+export async function initServices(): Promise<void> {
   if (_initialized) return
 
   // Keep compile-time flags in this branch so each build drops adapters for
   // the other platforms instead of shipping their runtime dependencies.
-  if (IS_WEB_WASM) {
-    await initializeWebWasmServices(options.initializeWebWasm)
-  } else if (IS_ELECTRON) {
+  if (IS_ELECTRON) {
     await initElectronAdapters()
   } else {
     await initCliWebAdapters()
   }
 
   _initialized = true
-}
-
-export async function initializeWebWasmServices(initialize: InitServicesOptions['initializeWebWasm']): Promise<void> {
-  if (!initialize) {
-    throw new Error('[services] Web WASM initializer is required')
-  }
-  await initialize({ register: registerAdapter })
 }
 
 /**

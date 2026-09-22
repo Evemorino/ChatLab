@@ -57,8 +57,8 @@ test('filters unsupported plugins and disposes active plugins in reverse order',
 
   assert.equal(
     host.activate({
-      id: 'web-wasm-only',
-      platforms: ['web-wasm'],
+      id: 'electron-only',
+      platforms: ['electron'],
       activate: () => {
         events.push('unexpected')
       },

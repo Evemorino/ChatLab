@@ -4,7 +4,6 @@ import type { Disposer } from '../../core'
 import { createUiServiceKey } from '../../ui-host'
 
 export interface TimeInvestmentUiService {
-  readonly canConfigureOwner: boolean
   get(options: AnnualSummaryFetchOptions): Promise<TimeInvestmentResponse>
   recompute(options: AnnualSummaryFetchOptions): Promise<TimeInvestmentResponse>
   openOwnerSettings(): void

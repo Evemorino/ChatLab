@@ -2,7 +2,6 @@
 /// <reference types="@nuxt/icon/client" />
 
 declare const __IS_ELECTRON__: boolean | undefined
-declare const __IS_WEB_WASM__: boolean | undefined
 
 declare module '*.vue' {
   import type { DefineComponent } from 'vue'

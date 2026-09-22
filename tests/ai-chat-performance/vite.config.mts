@@ -19,7 +19,6 @@ export default defineConfig({
   },
   define: {
     __IS_ELECTRON__: JSON.stringify(false),
-    __IS_WEB_WASM__: JSON.stringify(false),
     __APP_VERSION__: JSON.stringify('benchmark'),
   },
   plugins: [vue(), ui({ dts: false }), chatlabIconBundle(repositoryRoot)],
