@@ -34,11 +34,16 @@ Download the installer for your OS from the [official website](https://chatlab.f
 
 ### CLI
 
-Requires Node.js ≥ 20.
+Requires Node.js ≥ 20. This fork publishes no npm package, so build the CLI from a clone:
 
 ```bash
-npm i chatlab-cli -g
+pnpm install
+pnpm --filter chatlab-cli run build
+pnpm --filter chatlab-cli run ensure-native
+node apps/cli/bin/chatlab.mjs --version
 ```
+
+The `clb ...` examples below assume this build is linked onto your PATH (for example `npm link` inside `apps/cli`).
 
 Start ChatLab:
 

@@ -22,7 +22,7 @@ For analysis of imported records, use `chatlab-analyze` when available. For an u
 clb --help
 ```
 
-If the CLI is missing, tell the user to install it with `npm install -g chatlab-cli`. Do not install software without approval. Reuse the user's specified file and target. Ask only if the path remains ambiguous, and quote it in every command.
+If the CLI is missing, tell the user to build it from this repository (`pnpm install && pnpm --filter chatlab-cli run build && pnpm --filter chatlab-cli run ensure-native`, then run `apps/cli/bin/chatlab.mjs`); this fork publishes no npm package. Do not install software without approval. Reuse the user's specified file and target. Ask only if the path remains ambiguous, and quote it in every command.
 
 2. Preview the import without writing:
 

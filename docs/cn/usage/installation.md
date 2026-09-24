@@ -8,7 +8,7 @@ ChatLab 提供 Desktop 和 CLI 两种安装方式。
 
 ## Desktop
 
-前往 [ChatLab 官网](https://chatlab.fun) 或 [GitHub Releases](https://github.com/ChatLab/ChatLab/releases) 下载对应操作系统的安装包，双击安装即可。
+前往 [ChatLab 官网](https://chatlab.fun) 或 [GitHub Releases](https://github.com/ChatLab/ChatLab/releases) 下载 macOS（Apple 芯片）安装包，双击安装即可。
 
 macOS Desktop 目前仅支持搭载 Apple 芯片（M 系列）的 Mac。Intel Mac 用户可以使用下方的 CLI Web。
 

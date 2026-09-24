@@ -8,7 +8,7 @@ ChatLab is available as a Desktop app or CLI.
 
 ## Desktop
 
-Download the installer for your operating system from the [ChatLab website](https://chatlab.fun) or [GitHub Releases](https://github.com/ChatLab/ChatLab/releases), then run it.
+Download the macOS (Apple Silicon) installer from the [ChatLab website](https://chatlab.fun) or [GitHub Releases](https://github.com/ChatLab/ChatLab/releases), then run it.
 
 The macOS Desktop app currently supports Apple Silicon Macs only. Intel Mac users can use CLI Web below.
 

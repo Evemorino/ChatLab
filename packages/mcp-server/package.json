@@ -1,7 +1,7 @@
 {
   "name": "chatlab-mcp",
   "version": "0.25.1",
-  "description": "ChatLab MCP Server — shared core for CLI and Desktop, also usable standalone via npx",
+  "description": "ChatLab MCP Server — shared core for CLI and Desktop",
   "type": "module",
   "main": "./dist/index.mjs",
   "bin": {

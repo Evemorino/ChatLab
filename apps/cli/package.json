@@ -38,10 +38,7 @@
     "prepare:cli-web": "rm -rf dist-cli-web && cp -r ../../dist-cli-web dist-cli-web",
     "ensure-native": "node scripts/ensure-native.mjs",
     "rebuild-native": "bash scripts/rebuild-native.sh",
-    "rebuild-sqlite": "npm rebuild better-sqlite3",
-    "prepack": "node scripts/sync-release-docs.mjs",
-    "postpack": "node scripts/clean-release-docs.mjs",
-    "prepublishOnly": "pnpm run build"
+    "rebuild-sqlite": "npm rebuild better-sqlite3"
   },
   "dependencies": {
     "@fastify/multipart": "^10.0.0",

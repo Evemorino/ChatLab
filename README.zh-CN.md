@@ -34,11 +34,16 @@ ChatLab 是一个专注于聊天记录分析的本地化应用。通过 AI Agent
 
 ### CLI
 
-需要 Node.js ≥ 20。
+需要 Node.js ≥ 20。本 fork 不发布 npm 包，请从仓库克隆后构建 CLI：
 
 ```bash
-npm i chatlab-cli -g
+pnpm install
+pnpm --filter chatlab-cli run build
+pnpm --filter chatlab-cli run ensure-native
+node apps/cli/bin/chatlab.mjs --version
 ```
+
+下文的 `clb ...` 示例假设你已经把这份构建链接到 PATH（例如在 `apps/cli` 里执行 `npm link`）。
 
 启动 ChatLab：
 
