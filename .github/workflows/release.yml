@@ -187,118 +187,6 @@ jobs:
           if-no-files-found: warn
           retention-days: 1 # 只保留1天，Release后会上传到GitHub Releases
 
-  build-win:
-    needs: [prepare_release]
-    runs-on: windows-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Setup pnpm and Node.js
-        uses: pnpm/setup@v2
-        with:
-          runtime: node@24
-          install: false
-
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      # 只暴露 System32 的 tar.exe 到 PATH。不能把整个 System32 置前：
-      # 那会让 WSL 的 bash.EXE 遮蔽 Git Bash，导致后续所有 shell: bash 步骤
-      # （含 dtolnay/rust-toolchain 内部脚本）在无 WSL 发行版的 runner 上失败
-      - name: Use Windows system tar (fix zstd cache issue)
-        shell: pwsh
-        run: |
-          $tarDir = Join-Path $env:RUNNER_TEMP 'system-tar'
-          New-Item -ItemType Directory -Force -Path $tarDir | Out-Null
-          Copy-Item "$env:SystemRoot\System32\tar.exe" -Destination $tarDir
-          Add-Content -Path $env:GITHUB_PATH -Value $tarDir
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v5
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
-      - name: Install dependencies
-        env:
-          PNPM_CONFIG_NODE_LINKER: hoisted
-        run: pnpm install --frozen-lockfile
-
-      # Rust native parser：Windows release 仅构建 x64（与 electron-builder --win 默认一致）
-      - name: Setup Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Setup Rust cache
-        uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: packages/parser-native
-
-      - name: Build native parser (win x64)
-        run: pnpm --filter @openchatlab/parser-native build
-
-      - name: Verify native parser artifact
-        shell: bash
-        run: ls -la packages/parser-native/chatlab-parser-native.win32-x64-msvc.node
-
-      - name: Inject version into app package.json
-        shell: pwsh
-        run: |
-          $env:RELEASE_VERSION = "${{ needs.prepare_release.outputs.version }}"
-          Write-Host "Injecting version: $env:RELEASE_VERSION"
-          node -e "
-            const fs = require('fs');
-            const version = process.env.RELEASE_VERSION;
-            for (const p of ['apps/desktop/package.json', 'apps/cli/package.json']) {
-              const pkg = JSON.parse(fs.readFileSync(p, 'utf-8'));
-              pkg.version = version;
-              fs.writeFileSync(p, JSON.stringify(pkg, null, 2) + '\n');
-              console.log(p + ' -> ' + version);
-            }
-          "
-
-      - name: Cache Electron and electron-builder binaries
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/AppData/Local/electron/Cache
-            ~/AppData/Local/electron-builder/Cache
-          key: ${{ runner.os }}-electron-builder-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-electron-builder-
-
-      - name: Build Electron app for Windows
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          # 分析服务
-          UMAMI_ENDPOINT: ${{ secrets.UMAMI_ENDPOINT }}
-          UMAMI_WEBSITE_ID: ${{ secrets.UMAMI_WEBSITE_ID }}
-        working-directory: apps/desktop
-        run: pnpm run build:win
-
-      - name: Verify native parser in packaged app (win x64)
-        shell: bash
-        run: node scripts/check-desktop-native.mjs win32-x64-msvc
-
-      - name: Verify packaged SQLite runtime (win x64)
-        run: node scripts/check-packaged-sqlite.mjs
-
-      - name: Upload Windows artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: ChatLab-win
-          path: |
-            apps/desktop/dist/*.exe
-            apps/desktop/dist/*.yml
-            apps/desktop/dist/*.json
-            apps/desktop/dist/*.blockmap
-          if-no-files-found: warn
-          retention-days: 1 # 只保留1天，Release后会上传到GitHub Releases
-
   build-cli:
     needs: [prepare_release]
     # Prereleases are desktop-only; stable releases also build and publish CLI artifacts.
@@ -358,14 +246,13 @@ jobs:
           retention-days: 1
 
   release:
-    needs: [prepare_release, build-mac, build-win, build-cli]
+    needs: [prepare_release, build-mac, build-cli]
     runs-on: ubuntu-latest
     if: >-
       ${{
         !cancelled() &&
         needs.prepare_release.result == 'success' &&
         needs.build-mac.result == 'success' &&
-        needs.build-win.result == 'success' &&
         (
           needs.build-cli.result == 'success' ||
           (
@@ -385,12 +272,6 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: ChatLab-mac-arm64
-          path: release-dist
-
-      - name: Download Windows artifacts
-        uses: actions/download-artifact@v8
-        with:
-          name: ChatLab-win
           path: release-dist
 
       - name: List files
@@ -432,7 +313,6 @@ jobs:
             echo "| Platform | File |"
             echo "|-----------------|-------------|"
             echo "| Mac (Apple Silicon) | [ChatLab-${VERSION_NUMBER}-arm64.dmg](https://github.com/ChatLab/ChatLab/releases/download/v${VERSION_NUMBER}/ChatLab-${VERSION_NUMBER}-arm64.dmg) |"
-            echo "| Windows | [ChatLab-${VERSION_NUMBER}-setup.exe](https://github.com/ChatLab/ChatLab/releases/download/v${VERSION_NUMBER}/ChatLab-${VERSION_NUMBER}-setup.exe) |"
           } > release_notes.md
 
           echo "Generated release notes:"
@@ -446,7 +326,6 @@ jobs:
           prerelease: ${{ needs.prepare_release.outputs.is_prerelease }}
           body_path: release_notes.md
           files: |
-            release-dist/*.exe
             release-dist/*.dmg
             release-dist/*.zip
             release-dist/*.yml

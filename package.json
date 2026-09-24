@@ -19,7 +19,6 @@
     "build:native": "pnpm --filter @openchatlab/parser-native build",
     "build:desktop": "pnpm --filter @openchatlab/desktop build",
     "build:mac": "pnpm --filter @openchatlab/desktop build:mac",
-    "build:win": "pnpm --filter @openchatlab/desktop build:win",
     "build:skill-validator": "node scripts/build-chatlab-skill-validator.mjs",
     "dev:serve": "bash scripts/dev-serve.sh",
     "dev:cli-web": "pnpm run ensure:server-native && CHATLAB_AUTO_SERVE=1 vite --config vite.cli-web.config.mts",

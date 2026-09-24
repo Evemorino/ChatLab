@@ -48,32 +48,6 @@ asarUnpack:
   - node_modules/@img/**
   - node_modules/@openchatlab/parser-native/**
 
-# Windows 平台配置
-win:
-  executableName: ChatLab
-  target: nsis
-  # Windows 构建显式携带 ensure-native 生成的 Electron ABI binding，避免
-  # electron-builder 在 workspace 中误判 appDir 时打入共享 Node ABI 产物。
-  extraResources:
-    - from: native/better_sqlite3.node
-      to: native/better_sqlite3.node
-    - from: build/icon.ico
-      to: tray-icon.ico
-
-# NSIS 安装器配置
-nsis:
-  oneClick: false
-  artifactName: ChatLab-${version}-setup.${ext}
-  shortcutName: ${productName}
-  uninstallDisplayName: ${productName}
-  createDesktopShortcut: always
-  allowElevation: true
-  allowToChangeInstallationDirectory: true
-  installerIcon: build/icon.ico
-  uninstallerIcon: build/icon.ico
-  include: installer-dpi.nsh
-  differentialPackage: false
-
 # macOS 平台配置
 mac:
   entitlementsInherit: build/entitlements.mac.plist
