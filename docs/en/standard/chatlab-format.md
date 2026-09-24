@@ -298,16 +298,6 @@ JSONL (JSON Lines) format is suitable for **very large chat records** (>1 millio
 - Each line must be **valid JSON** (cannot span lines)
 - Lines are separated by newline `\n` :::
 
-## Validate converted output
-
-The ChatLab CLI can strictly validate JSON/JSONL without importing or writing to the database. It checks malformed lines, protocol version, required fields, second-based timestamps, member references, message types, message IDs, and reply relationships without printing message bodies:
-
-```bash
-clb validate "/absolute/path/to/converted.jsonl" --json
-```
-
-After validation passes, use `clb import <file> --dry-run --json` to confirm ChatLab can fully recognize the file.
-
 ## Version History
 
 | Version | Date    | Changes                                                            |

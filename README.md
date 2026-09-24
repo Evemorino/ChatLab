@@ -30,38 +30,7 @@ Currently supported: **WhatsApp, LINE, QQ, Discord, Instagram, Telegram, iMessag
 
 ### Desktop App
 
-Download the installer for your OS from the [official website](https://chatlab.fun/?type=download) or [GitHub Releases](https://github.com/ChatLab/ChatLab/releases), then double-click to install.
-
-### CLI
-
-Requires Node.js ≥ 20. This fork publishes no npm package, so build the CLI from a clone:
-
-```bash
-pnpm install
-pnpm --filter chatlab-cli run build
-pnpm --filter chatlab-cli run ensure-native
-node apps/cli/bin/chatlab.mjs --version
-```
-
-The `clb ...` examples below assume this build is linked onto your PATH (for example `npm link` inside `apps/cli`).
-
-Start ChatLab:
-
-```bash
-clb web            # Start API + Web UI, auto-open in browser
-clb web --no-open  # Start API + Web UI, skip auto-open
-clb web --headless # API only, no Web UI (for scripts / AI Agents)
-```
-
-Common options: `--port <port>` (default 3110), `--host <address>`, `--token <token>`.
-
-To run as a persistent background service (auto-start on login + auto-restart on crash):
-
-```bash
-clb web --daemon   # Install as system service (macOS / Linux)
-clb status           # Check service status
-clb stop             # Stop and uninstall service
-```
+Download the macOS (Apple Silicon) installer from the [official website](https://chatlab.fun/?type=download) or [GitHub Releases](https://github.com/ChatLab/ChatLab/releases), then double-click to install.
 
 For a full walkthrough, see the [Quick Start guide](https://docs.chatlab.fun/usage/quick-start).
 
@@ -80,7 +49,7 @@ For more previews, please visit the official website: [chatlab.fun](https://chat
 
 ## Architecture Overview
 
-ChatLab is a pnpm monorepo built on Electron + Vue 3 + Nuxt UI + Tailwind CSS. Core business logic lives in shared packages (`@openchatlab/core`, `@openchatlab/node-runtime`, `@openchatlab/tools`), consumed by both the desktop app and the CLI service — so they stay in sync.
+ChatLab is a pnpm monorepo built on Electron + Vue 3 + Nuxt UI + Tailwind CSS. Core business logic lives in shared packages (`@openchatlab/core`, `@openchatlab/node-runtime`, `@openchatlab/tools`), consumed by the desktop app's main process through its internal HTTP server.
 
 Data flows in five stages: **format detection → stream parsing → local persistence → SQL + AI query → visualization**.
 
@@ -118,8 +87,6 @@ Or launch a specific target directly:
 
 ```bash
 pnpm dev:desktop   # Electron desktop app
-pnpm dev:cli-web   # CLI Web frontend + local server
-pnpm dev:serve     # CLI server only
 pnpm docs:dev      # Docs site
 ```
 

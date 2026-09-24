@@ -21,14 +21,12 @@ const enSidebar: DefaultTheme.SidebarItem[] = [
     items: [
       { text: 'Why ChatLab', link: '/ai/why-chatlab' },
       { text: 'Analyze with Built-in AI', link: '/ai/chatlab-ai' },
-      { text: 'Analyze with an External AI Agent', link: '/ai/external-agent' },
     ],
   },
   {
     text: 'Integrate with ChatLab',
     items: [
       { text: 'ChatLab Format', link: '/standard/chatlab-format' },
-      { text: 'AI Conversion Guide', link: '/standard/ai-converter' },
       { text: 'ChatLab API', link: '/standard/chatlab-api' },
     ],
   },
@@ -60,14 +58,12 @@ const cnSidebar: DefaultTheme.SidebarItem[] = [
     items: [
       { text: '为什么选择 ChatLab', link: '/cn/ai/why-chatlab' },
       { text: '使用内置 AI 分析', link: '/cn/ai/chatlab-ai' },
-      { text: '使用外部 AI Agent 分析', link: '/cn/ai/external-agent' },
     ],
   },
   {
     text: '对接 ChatLab',
     items: [
       { text: 'ChatLab Format', link: '/cn/standard/chatlab-format' },
-      { text: 'AI 辅助转换', link: '/cn/standard/ai-converter' },
       { text: 'ChatLab API', link: '/cn/standard/chatlab-api' },
       { text: 'Push 导入协议', link: '/cn/standard/chatlab-import' },
       { text: 'Pull 远程数据源协议', link: '/cn/standard/chatlab-pull' },
@@ -107,7 +103,6 @@ const twSidebar: DefaultTheme.SidebarItem[] = [
     text: '對接 ChatLab',
     items: [
       { text: 'ChatLab Format', link: '/tw/standard/chatlab-format' },
-      { text: 'AI 輔助轉換', link: '/tw/standard/ai-converter' },
       { text: 'ChatLab API', link: '/tw/standard/chatlab-api' },
     ],
   },

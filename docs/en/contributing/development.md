@@ -26,23 +26,23 @@ pnpm install
 
 ## Local Commands
 
-| Command | Purpose |
-| --- | --- |
-| `pnpm dev` | Select Desktop or docs interactively |
-| `pnpm dev:desktop` | Start the Electron desktop app in development mode |
-| `pnpm docs:dev` | Start the public docs site locally |
-| `pnpm build:desktop` | Build the desktop app |
-| `pnpm docs:build` | Build the public docs site |
-| `pnpm run type-check:all` | Run both web and Node type checks |
-| `pnpm lint` | Run ESLint with auto-fix |
-| `pnpm format` | Run Prettier formatting |
+| Command                   | Purpose                                            |
+| ------------------------- | -------------------------------------------------- |
+| `pnpm dev`                | Select Desktop or docs interactively               |
+| `pnpm dev:desktop`        | Start the Electron desktop app in development mode |
+| `pnpm docs:dev`           | Start the public docs site locally                 |
+| `pnpm build:desktop`      | Build the desktop app                              |
+| `pnpm docs:build`         | Build the public docs site                         |
+| `pnpm run type-check:all` | Run both web and Node type checks                  |
+| `pnpm lint`               | Run ESLint with auto-fix                           |
+| `pnpm format`             | Run Prettier formatting                            |
 
 For small changes, prefer targeted checks for the files or package you changed. For cross-module, release, or architecture changes, run the broader checks.
 
 ## Platform Terminology
 
 - **Desktop** is the only graphical runtime in this fork; the renderer reaches shared business logic through the main process's internal HTTP server.
-- **CLI** means the `clb` command line for import, query and validation. This fork has retired CLI Web (the browser UI and its resident HTTP server).
+- **MCP** is `packages/mcp-server`, a standalone process that gives external AI agents read-only access to imported data. It has its own bin and does not depend on the desktop app running.
 
 ## Repository Structure
 
@@ -51,7 +51,6 @@ For small changes, prefer targeted checks for the files or package you changed. 
 | `src/` | Shared frontend app code, including pages, components, services, stores, and i18n |
 | `src/services/` | Frontend service layer for the Electron internal API and platform capabilities |
 | `apps/desktop/` | Electron main process, preload, and desktop build configuration |
-| `apps/cli/` | CLI subcommands, import and query commands |
 | `packages/core/` | Platform-independent data model, queries, imports, and member operations |
 | `packages/node-runtime/` | Node.js runtime services, database, AI, exports, caches, and migrations |
 | `packages/tools/` | Shared AI tool definitions and data access adapters |
@@ -122,18 +121,18 @@ Compatibility-related changes should cover:
 
 ## Common Change Entry Points
 
-| If you want to change                | Start here                                                             |
-| ------------------------------------ | ---------------------------------------------------------------------- |
-| Frontend pages and components        | `src/pages/`, `src/components/`                                        |
-| Chart analysis                       | `src/components/analysis/`, `src/components/charts/`                   |
-| Data, message, and session API calls | `src/services/`                                                        |
-| Electron main process                | `apps/desktop/main/`, `apps/desktop/preload/`                          |
-| CLI and Web API                      | `apps/cli/`                                                            |
-| Shared business logic                | `packages/node-runtime/src/services/`, `packages/core/`                |
-| AI tools and agents                  | `packages/tools/`, `packages/node-runtime/src/ai/`, `src/services/ai*` |
-| Import parsing                       | `packages/core/`, `apps/cli/src/import/`, `src/services/import/`       |
-| Documentation site                   | `docs/`, `docs/.vitepress/config.mts`                                  |
-| Changelog                            | `changelogs/`                                                          |
+| If you want to change                | Start here                                                                    |
+| ------------------------------------ | ----------------------------------------------------------------------------- |
+| Frontend pages and components        | `src/pages/`, `src/components/`                                               |
+| Chart analysis                       | `src/components/analysis/`, `src/components/charts/`                          |
+| Data, message, and session API calls | `src/services/`                                                               |
+| Electron main process                | `apps/desktop/main/`, `apps/desktop/preload/`                                 |
+| External API and MCP                 | `apps/desktop/main/api/`, `packages/http-routes/`, `packages/mcp-server/`     |
+| Shared business logic                | `packages/node-runtime/src/services/`, `packages/core/`                       |
+| AI tools and agents                  | `packages/tools/`, `packages/node-runtime/src/ai/`, `src/services/ai*`        |
+| Import parsing                       | `packages/core/`, `packages/node-runtime/src/import/`, `src/services/import/` |
+| Documentation site                   | `docs/`, `docs/.vitepress/config.mts`                                         |
+| Changelog                            | `changelogs/`                                                                 |
 
 ## Tests And Checks
 

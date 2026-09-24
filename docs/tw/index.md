@@ -22,7 +22,7 @@ ChatLab 的誕生，就是為了**讓每位使用者都能安全地分析、回�
 
 ChatLab 目前原生支援匯入 QQ、WhatsApp、LINE、Discord、Instagram、Telegram 和 iMessage 的聊天記錄。按照[匯出聊天記錄指南](/tw/usage/how-to-export)準備檔案後，即可直接匯入使用。
 
-如果你使用的平台尚未支援，也可以先匯出聊天記錄，再使用官方 [AI 輔助轉換 Skill](/tw/standard/ai-converter) 將其轉換為 ChatLab Format，轉換完成後即可正常匯入。
+如果你使用的平台尚未支援，也可以先匯出聊天記錄，再手動轉換為 [ChatLab Format](/tw/standard/chatlab-format)，轉換完成後即可正常匯入。
 
 ## 開始使用
 
@@ -33,5 +33,5 @@ ChatLab 目前原生支援匯入 QQ、WhatsApp、LINE、Discord、Instagram、Te
 ## 進一步探索
 
 - **AI 分析**：了解[為什麼選擇 ChatLab](/tw/ai/why-chatlab)，或使用[內建 AI](/tw/ai/chatlab-ai)。
-- **對接 ChatLab**：查看 [ChatLab Format](/tw/standard/chatlab-format)、[AI 輔助轉換](/tw/standard/ai-converter)和 [ChatLab API](/tw/standard/chatlab-api)。
+- **對接 ChatLab**：查看 [ChatLab Format](/tw/standard/chatlab-format)和 [ChatLab API](/tw/standard/chatlab-api)。
 - **參與貢獻**：前往 [GitHub 專案](https://github.com/ChatLab/ChatLab)。

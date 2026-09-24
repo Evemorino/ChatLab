@@ -28,13 +28,14 @@
 
 - `src/`：共享前端应用代码，包含页面、组件、状态、服务封装和 i18n
 - `apps/desktop/`：Electron 主进程、preload、桌面端构建与平台能力适配
-- `apps/cli/`：CLI、HTTP API、CLI Web 运行时、导入命令和本地服务入口
 - `packages/core/`：平台无关的核心模型、查询、导入去重、图表和 AI 静态定义
 - `packages/node-runtime/`：Node.js 运行时能力，包括 SQLite 适配、数据库迁移、AI 管理、导出、缓存和数据目录
 - `packages/tools/`：AI 工具定义、工具 registry 和数据访问 provider
 - `packages/parser/`：聊天导出格式解析器和格式识别
 - `packages/parser-native/`：napi-rs Rust 原生解析内核（可选本地构建，未构建时 parser 自动回退 TS 实现）
-- `packages/http-routes/`：Electron 和 CLI Web 复用的 HTTP route
+- `packages/http-routes/`：桌面端内部 API 与对外 API 共用的 HTTP route
+- `packages/sync/`：数据源配置、Pull 拉取同步和调度，由桌面端主进程消费
+- `packages/mcp-server/`：供外部 AI Agent 只读查询的 MCP server，独立 bin，不依赖桌面端运行
 - `docs/`：公开文档站源码；`.docs/`：私有开发上下文和任务记录，不作为公开 PR 理解前提
 - 更细的架构说明继续以 `docs/cn/contributing/development.md` 和 `.docs/README.md` 为准，不在根 `AGENTS.md` 里重复维护
 
@@ -51,7 +52,7 @@
 
 ## 命令与验证
 
-- 类型检查：Node/CLI/Electron 主进程相关改动运行 `pnpm run type-check:node`；前端/Vue 相关改动运行 `pnpm run type-check:web`；跨端或发布前改动运行 `pnpm run type-check:all`
+- 类型检查：Node/Electron 主进程相关改动运行 `pnpm run type-check:node`；前端/Vue 相关改动运行 `pnpm run type-check:web`；跨端或发布前改动运行 `pnpm run type-check:all`
 - Lint：优先对修改文件运行 `pnpm exec eslint <files...>`；需要全量修复时再运行 `pnpm lint`
 - Format：优先对修改文件运行 `pnpm exec prettier --write <files...>`；大范围格式化才运行 `pnpm format`。`docs/**/*.md` 被 Prettier 默认忽略，格式化这些文件时使用 `pnpm exec prettier --write --ignore-path .gitignore <files...>`。
 - 单元/集成测试：按改动范围优先运行相关测试，使用 `pnpm test -- path/to/file.test.ts`；需要全量回归时运行 `pnpm test` 或 `pnpm run test:unit`。相关测试通过后，仅在新增改动、失败或具体未解决风险需要时，扩大或重复测试。
@@ -61,27 +62,27 @@
 
 ## 代码规范
 
-- 平台术语：内部交流、开发菜单和平台级代码统一使用 `Desktop`（Electron 桌面端）与 `CLI Web`（Node 后端 + Web UI）。“后端”或“API Server”只指 Node.js 进程，不等于完整的 CLI Web。详细边界见 `.docs/rules/platform-naming.md`。
+- 平台术语：本 fork 只有一个运行时 `Desktop`（Electron 桌面端），渲染进程通过主进程的内部 HTTP 服务访问业务逻辑；对外集成称 `MCP`（`packages/mcp-server`）和 `External API`（`apps/desktop/main/api/`）。“后端”不再指一个独立的 Node 服务进程。详细边界见 `.docs/rules/platform-naming.md`。
 - 多语言：代码中的日志、注释、AI 工具描述、错误消息等非 UI 文本默认使用英文。当有运行时 locale 可用时（如工具返回结果、AI 看到的文本），应通过 `isChineseLocale(locale)` 等机制支持中英双语。数据清洗中与聊天平台格式匹配的标签（如 `[分享]`、`[图片]`）保持原始语言不变。UI 文案的国际化遵循 `.docs/rules/i18n.md`
 - i18n 复用性：新增 UI 文案 key 前，先判断是否是通用动作、状态、提示或组件文案；能复用的优先放在 `common.*` 等共享命名空间，避免在具体业务模块（如 `members.*`、`records.*`）重复定义同义 key。只有明确绑定业务语境、无法自然复用的文案才放到模块命名空间。
 
 ## 日志
 
-- 统一入口：Node 侧（Electron 主进程 / CLI / CLI Web）使用 `@openchatlab/node-runtime` 的 `appLogger`；前端使用 `src/services/log-report.ts` 上报。不要新建通用 logger 或直接写日志文件；AI 使用 `AiLogger`、导入性能使用 `perf-logger`。
+- 统一入口：Node 侧（Electron 主进程 / MCP server）使用 `@openchatlab/node-runtime` 的 `appLogger`；前端使用 `src/services/log-report.ts` 上报。不要新建通用 logger 或直接写日志文件；AI 使用 `AiLogger`、导入性能使用 `perf-logger`。
 - 关键路径：启动、迁移、数据库或配置变更、导入、认证、外部调用和后台任务等用户可感知流程，应记录必要的开始、完成和失败节点。日志应能帮助判断流程停在哪一步及其原始错误，但不要机械记录每个函数或分支。
 - 日志级别：低频且有诊断价值的成功节点使用 `info`；操作最终失败或功能不可用使用 `error`；已有重试、降级或回退且流程仍可继续使用 `warn`；轮询、缓存和状态快照等高频诊断使用 `debug`。记录异常时应直接传入原始 `Error`，避免丢失 stack。
 - 适度原则：不要在循环或高频热路径写 `info`，不得记录聊天明文、API Key、token 等敏感信息。不要为具体日志文案、级别或调用方式机械增加业务测试；日志问题也不自动构成严重 Bug，仍应根据实际用户影响判断。
 
 ## 架构边界
 
-- 多端复用：维护 Electron 和 CLI Web 的共享业务逻辑时，优先在 `packages/node-runtime/src/services/` 下实现，禁止在路由/IPC handler 中绕过 core 直接写 SQL。详见 `.docs/README.md` 的"多端逻辑复用"章节。
+- 多端复用：桌面端的内部 HTTP 路由、IPC handler、外部 API 和 MCP server 必须复用同一份业务实现，优先在 `packages/node-runtime/src/services/` 下定义，禁止在这些入口中绕过 core 直接写 SQL。详见 `.docs/README.md` 的"多端逻辑复用"章节。
 
 ## 兼容与迁移
 
 - 运行时应读写当前 canonical 数据结构；旧 schema、旧字段名、旧配置形状应优先在数据库迁移、配置迁移或解析加载阶段 normalize，不在业务热路径长期保留多套分支
 - 保留兼容必须能说明对应的已发布版本、用户数据或公开 API 契约；不要为了假设中的旧状态添加永久 alias、fallback 或双写逻辑
 - 修改数据库 schema、AI 数据、配置文件、数据目录或导入格式时，必须考虑从上一个稳定版本和更早已发布版本升级的路径，并补充能证明数据不丢失的测试或验证
-- 会让旧版 CLI/Desktop/MCP 无法安全读写同一 `userDataDir` 的变更，必须通过 `.chatlab-meta.json` 提升数据目录最低运行时版本，并接入 CLI/Desktop/MCP 启动检查；详细规则见 `docs/cn/contributing/development.md` 的“数据目录兼容门禁”
+- 会让旧版 Desktop/CLI/MCP 运行时无法安全读写同一 `userDataDir` 的变更，必须通过 `.chatlab-meta.json` 提升数据目录最低运行时版本，并接入启动检查。本 fork 已停止分发 CLI，但 `RuntimeKind` 仍必须保留 `'cli'` 成员，否则历史 meta 会被判为 invalid 并阻断老用户的桌面端启动。详细规则见 `docs/cn/contributing/development.md` 的“数据目录兼容门禁”
 - 如果异常状态可以通过中断、报错和后续人工/AI 处理解决，不要预先加入复杂防御逻辑；优先保持迁移路径清晰、可验证
 
 ## 安全与发布
@@ -93,4 +94,4 @@
 ## 提交规范
 
 - 分支规则：功能需求开发前必须新建或切换到功能分支；允许提交到main的例外情况：发版工作流、独立内部文档仓库 `.docs/` 的日常维护
-- Commit 规范：使用 Conventional Commits。scope 规则——通用改动 scope 随意（如 `ai`、`import`、`sidebar` 等模块名）；仅当改动是**平台特有**时才使用平台 scope（`electron`、`cli`、`web`）。
+- Commit 规范：使用 Conventional Commits。scope 规则——通用改动 scope 随意（如 `ai`、`import`、`sidebar` 等模块名）；仅当改动是**平台特有**时才使用平台 scope（`electron`）。

@@ -26,32 +26,31 @@ pnpm install
 
 ## 本地运行
 
-| 命令                      | 用途                                                                          |
-| ------------------------- | ----------------------------------------------------------------------------- |
-| `pnpm dev`                | 交互式选择 Desktop 或文档站开发目标                                             |
-| `pnpm dev:desktop`        | 启动 Electron 桌面端开发模式                                                    |
-| `pnpm docs:dev`           | 启动公开文档站开发模式                                                          |
-| `pnpm build:desktop`      | 构建桌面端                                                                      |
-| `pnpm docs:build`         | 构建公开文档站                                                                  |
-| `pnpm run type-check:all` | 运行前端和 Node 侧类型检查                                                    |
-| `pnpm lint`               | 运行 ESLint 并自动修复                                                        |
-| `pnpm format`             | 运行 Prettier 格式化                                                          |
+| 命令                      | 用途                                |
+| ------------------------- | ----------------------------------- |
+| `pnpm dev`                | 交互式选择 Desktop 或文档站开发目标 |
+| `pnpm dev:desktop`        | 启动 Electron 桌面端开发模式        |
+| `pnpm docs:dev`           | 启动公开文档站开发模式              |
+| `pnpm build:desktop`      | 构建桌面端                          |
+| `pnpm docs:build`         | 构建公开文档站                      |
+| `pnpm run type-check:all` | 运行前端和 Node 侧类型检查          |
+| `pnpm lint`               | 运行 ESLint 并自动修复              |
+| `pnpm format`             | 运行 Prettier 格式化                |
 
 小范围改动优先对修改文件或相关子项目做定向检查；跨模块、发布或架构类改动再跑全量检查。
 
 ## 平台术语
 
 - **Desktop**：Electron 桌面端，本 fork 唯一的图形运行时，渲染进程通过主进程的内部 HTTP 服务访问业务逻辑。
-- **CLI**：`clb` 命令行，提供导入、查询和校验能力。本 fork 已下线 CLI Web（浏览器版 UI 与常驻 HTTP 服务）。
+- **MCP**：`packages/mcp-server`，供外部 AI Agent 只读查询本机已导入数据的独立进程，有自己的 bin，不依赖桌面端启动。
 
 ## 目录职责
 
 | 路径                     | 职责                                                    |
 | ------------------------ | ------------------------------------------------------- |
 | `src/`                   | 共享前端应用代码，包含页面、组件、服务封装、状态和 i18n |
-| `src/services/`          | 前端访问 Electron 内部 API 和平台能力的服务层       |
+| `src/services/`          | 前端访问 Electron 内部 API 和平台能力的服务层           |
 | `apps/desktop/`          | Electron 主进程、preload 和桌面端构建配置               |
-| `apps/cli/`              | CLI 子命令、导入和查询命令                          |
 | `packages/core/`         | 平台无关的核心数据模型、查询、导入和成员操作            |
 | `packages/node-runtime/` | Node.js 运行时服务、数据库、AI、导出、缓存和迁移        |
 | `packages/tools/`        | 统一 AI 工具定义和数据访问适配                          |
@@ -122,18 +121,18 @@ CHATLAB_ALLOW_INCOMPATIBLE_DATA_DIR=1
 
 ## 常见改动入口
 
-| 想改什么                  | 先看哪里                                                               |
-| ------------------------- | ---------------------------------------------------------------------- |
-| 前端页面和组件            | `src/pages/`、`src/components/`                                        |
-| 图表分析                  | `src/components/analysis/`、`src/components/charts/`                   |
-| 数据、消息、会话 API 调用 | `src/services/`                                                        |
-| Electron 主进程           | `apps/desktop/main/`、`apps/desktop/preload/`                          |
-| CLI 和 Web API            | `apps/cli/`                                                            |
-| 共享业务逻辑              | `packages/node-runtime/src/services/`、`packages/core/`                |
-| AI 工具和 Agent           | `packages/tools/`、`packages/node-runtime/src/ai/`、`src/services/ai*` |
-| 导入解析                  | `packages/core/`、`apps/cli/src/import/`、`src/services/import/`       |
-| 文档站                    | `docs/`、`docs/.vitepress/config.mts`                                  |
-| 更新日志                  | `changelogs/`                                                          |
+| 想改什么                  | 先看哪里                                                                      |
+| ------------------------- | ----------------------------------------------------------------------------- |
+| 前端页面和组件            | `src/pages/`、`src/components/`                                               |
+| 图表分析                  | `src/components/analysis/`、`src/components/charts/`                          |
+| 数据、消息、会话 API 调用 | `src/services/`                                                               |
+| Electron 主进程           | `apps/desktop/main/`、`apps/desktop/preload/`                                 |
+| 外部 API 与 MCP           | `apps/desktop/main/api/`、`packages/http-routes/`、`packages/mcp-server/`     |
+| 共享业务逻辑              | `packages/node-runtime/src/services/`、`packages/core/`                       |
+| AI 工具和 Agent           | `packages/tools/`、`packages/node-runtime/src/ai/`、`src/services/ai*`        |
+| 导入解析                  | `packages/core/`、`packages/node-runtime/src/import/`、`src/services/import/` |
+| 文档站                    | `docs/`、`docs/.vitepress/config.mts`                                         |
+| 更新日志                  | `changelogs/`                                                                 |
 
 ## 测试与检查
 

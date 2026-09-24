@@ -22,7 +22,7 @@ ChatLab was built to **give everyone a private, secure way to analyze and revisi
 
 ChatLab currently supports importing chat records from QQ, WhatsApp, LINE, Discord, Instagram, Telegram, and iMessage. Prepare the files using the [Export Chat Records guide](/usage/how-to-export), then import them directly into ChatLab.
 
-If your platform is not yet supported, export the chat records first and use the official [AI Conversion Skill](/standard/ai-converter) to convert them into ChatLab Format. The converted files can then be imported normally.
+If your platform is not yet supported, export the chat records first and convert them into [ChatLab Format](/standard/chatlab-format), which ChatLab can then import normally.
 
 ## Get Started
 
@@ -32,6 +32,6 @@ If your platform is not yet supported, export the chat records first and use the
 
 ## Explore More
 
-- **AI Analysis**: Learn [Why ChatLab](/ai/why-chatlab), or use the [built-in AI](/ai/chatlab-ai) and an [external AI Agent](/ai/external-agent).
+- **AI Analysis**: Learn [Why ChatLab](/ai/why-chatlab), use the [built-in AI](/ai/chatlab-ai), or connect an external AI agent through the desktop app's [MCP and local API](/standard/chatlab-api).
 - **Integrate with ChatLab**: Explore [ChatLab Format](/standard/chatlab-format), the [ChatLab API](/standard/chatlab-api), and the [Push Import Protocol](/standard/chatlab-import).
 - **Contribute**: Read the [Development Guide](/contributing/development).
