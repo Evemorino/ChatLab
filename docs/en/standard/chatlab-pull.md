@@ -95,15 +95,15 @@ Accept: application/json
 }
 ```
 
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `id` | string | Yes | Unique conversation identifier in the data source |
-| `name` | string | Yes | Conversation name (group name or contact name) |
-| `platform` | string | Yes | Platform identifier (same as Push mode) |
-| `type` | string | Yes | `group` or `private` |
-| `messageCount` | number | No | Total message count (shown in ChatLab UI as an estimate) |
-| `memberCount` | number | No | Member count |
-| `lastMessageAt` | number | No | Latest message timestamp |
+| Field           | Type   | Required | Description                                              |
+| --------------- | ------ | -------- | -------------------------------------------------------- |
+| `id`            | string | Yes      | Unique conversation identifier in the data source        |
+| `name`          | string | Yes      | Conversation name (group name or contact name)           |
+| `platform`      | string | Yes      | Platform identifier (same as Push mode)                  |
+| `type`          | string | Yes      | `group` or `private`                                     |
+| `messageCount`  | number | No       | Total message count (shown in ChatLab UI as an estimate) |
+| `memberCount`   | number | No       | Member count                                             |
+| `lastMessageAt` | number | No       | Latest message timestamp                                 |
 
 `page` is an **optional enhancement field**:
 
@@ -141,16 +141,14 @@ Authorization: Bearer {token}
 Accept: application/json
 ```
 
-| Parameter | Required | Description |
-| --- | --- | --- |
-| `sessionId` | Yes | Conversation `id` from Phase 1 |
-| `format` | Yes | Fixed as `chatlab`; requests ChatLab standard format from the data source |
-| `since` | No | Unix timestamp (seconds). Omitted or `0` = full pull; greater than 0 = incremental pull |
-| `limit` | No | Maximum messages per response, for pagination |
+| Parameter   | Required | Description                                                                             |
+| ----------- | -------- | --------------------------------------------------------------------------------------- |
+| `sessionId` | Yes      | Conversation `id` from Phase 1                                                          |
+| `format`    | Yes      | Fixed as `chatlab`; requests ChatLab standard format from the data source               |
+| `since`     | No       | Unix timestamp (seconds). Omitted or `0` = full pull; greater than 0 = incremental pull |
+| `limit`     | No       | Maximum messages per response, for pagination                                           |
 
-::: tip Future Evolution
-A future version may support `Accept: application/x-ndjson` for NDJSON streaming responses. Current version uses JSON only.
-:::
+::: tip Future Evolution A future version may support `Accept: application/x-ndjson` for NDJSON streaming responses. Current version uses JSON only. :::
 
 ### Data Carrying Rules
 
@@ -158,9 +156,7 @@ A future version may support `Accept: application/x-ndjson` for NDJSON streaming
 - **Incremental sync** (`since > 0`): **Must** include `messages`. `meta` / `members` should **only be included when they have actually changed**; omit them otherwise to avoid overwriting current state with historical snapshots
 - Return an empty `messages` array when there is no new data
 
-::: tip Data Preparation
-If the data source needs time to prepare data for a `since=0` request (e.g. loading from disk, building indexes), it may return an empty `messages` + `hasMore: false`. ChatLab will retry automatically (up to 3 times with increasing intervals) while waiting for the data source to be ready.
-:::
+::: tip Data Preparation If the data source needs time to prepare data for a `since=0` request (e.g. loading from disk, building indexes), it may return an empty `messages` + `hasMore: false`. ChatLab will retry automatically (up to 3 times with increasing intervals) while waiting for the data source to be ready. :::
 
 ### Response Format
 
@@ -188,27 +184,23 @@ The response is standard [ChatLab Format](./chatlab-format.md) (JSON or JSONL), 
 
 ChatLab's pagination is driven entirely by `hasMore` + `nextSince`. After returning a batch, the data source sets `nextSince` to the last message's timestamp; ChatLab passes that value as `since` on the next request. ChatLab's built-in deduplication handles any overlap at timestamp boundaries correctly.
 
-::: details Reserved Protocol Fields (not used in current version)
-The following fields are reserved in the protocol. ChatLab does not currently use them but may enable them in future versions:
+::: details Reserved Protocol Fields (not used in current version) The following fields are reserved in the protocol. ChatLab does not currently use them but may enable them in future versions:
 
-| Field | Type | Description |
-| --- | --- | --- |
-| `nextOffset` | number | Pagination offset, used with the `offset` parameter |
-| `watermark` | number | Snapshot upper-bound timestamp for pagination consistency |
+| Field        | Type   | Description                                               |
+| ------------ | ------ | --------------------------------------------------------- |
+| `nextOffset` | number | Pagination offset, used with the `offset` parameter       |
+| `watermark`  | number | Snapshot upper-bound timestamp for pagination consistency |
 
-Data sources do not need to implement these fields. ChatLab's deduplication (based on `platformMessageId` or content hash) already ensures data integrity.
-:::
+Data sources do not need to implement these fields. ChatLab's deduplication (based on `platformMessageId` or content hash) already ensures data integrity. :::
 
 **sync Block Requirements:**
 
-| Data Source Behavior | sync Block | Notes |
-| --- | --- | --- |
-| Returns all data in one response (no pagination) | Optional | ChatLab treats `messages` as the complete result |
-| Supports `limit`-based pagination | **Required** | Must include at least `hasMore` + `nextSince` |
+| Data Source Behavior                             | sync Block   | Notes                                            |
+| ------------------------------------------------ | ------------ | ------------------------------------------------ |
+| Returns all data in one response (no pagination) | Optional     | ChatLab treats `messages` as the complete result |
+| Supports `limit`-based pagination                | **Required** | Must include at least `hasMore` + `nextSince`    |
 
-::: warning
-If a data source supports pagination but does not return a `sync` block, ChatLab does not guarantee automatic continuation — only the first response will be processed.
-:::
+::: warning If a data source supports pagination but does not return a `sync` block, ChatLab does not guarantee automatic continuation — only the first response will be processed. :::
 
 ### Batch Pull Strategy
 
@@ -247,9 +239,7 @@ The remote data source returns incremental messages since `lastPullAt`. ChatLab 
 
 In addition to scheduled polling, a remote data source may optionally implement an SSE (Server-Sent Events) endpoint to **notify ChatLab that new data is available**.
 
-::: warning Important
-SSE is a notification channel only, not the primary data sync channel. ChatLab does not assume SSE events are reliably delivered (network drops and process restarts can cause missed events). Final data consistency is always guaranteed by scheduled pulls. SSE reduces incremental sync latency from minutes to seconds.
-:::
+::: warning Important SSE is a notification channel only, not the primary data sync channel. ChatLab does not assume SSE events are reliably delivered (network drops and process restarts can cause missed events). Final data consistency is always guaranteed by scheduled pulls. SSE reduces incremental sync latency from minutes to seconds. :::
 
 ### GET /push/messages
 
@@ -281,9 +271,7 @@ When ChatLab receives an SSE event, it **triggers one incremental pull for that 
 
 Remote data sources may optionally require authentication. If needed, use `Authorization: Bearer {token}`.
 
-::: tip SSE Authentication
-Some data sources additionally support the `?access_token=TOKEN` query parameter for passing tokens (recommended for SSE long connections, since the `EventSource` API does not support custom headers). ChatLab also supports the query parameter approach when connecting to SSE.
-:::
+::: tip SSE Authentication Some data sources additionally support the `?access_token=TOKEN` query parameter for passing tokens (recommended for SSE long connections, since the `EventSource` API does not support custom headers). ChatLab also supports the query parameter approach when connecting to SSE. :::
 
 ---
 
@@ -293,19 +281,19 @@ Some data sources additionally support the `?access_token=TOKEN` query parameter
 
 Only two endpoints are needed to integrate with ChatLab:
 
-| Endpoint | Description |
-| --- | --- |
-| `GET /sessions` | Returns the conversation list |
+| Endpoint                                            | Description                    |
+| --------------------------------------------------- | ------------------------------ |
+| `GET /sessions`                                     | Returns the conversation list  |
 | `GET /sessions/:id/messages?format=chatlab&since=X` | Returns data in ChatLab format |
 
 A minimal implementation does not require pagination, SSE, or a complex `sync` block. ChatLab treats the response's `messages` as the complete dataset.
 
 ### Enhanced Implementation
 
-| Capability | Description |
-| --- | --- |
-| `GET /push/messages` | SSE real-time notifications (wakes up a pull; does not transmit data directly) |
-| `limit` + `sync` pagination | Batched pulling for large histories via `hasMore` + `nextSince` |
+| Capability                  | Description                                                                    |
+| --------------------------- | ------------------------------------------------------------------------------ |
+| `GET /push/messages`        | SSE real-time notifications (wakes up a pull; does not transmit data directly) |
+| `limit` + `sync` pagination | Batched pulling for large histories via `hasMore` + `nextSince`                |
 
 ### Data Format
 

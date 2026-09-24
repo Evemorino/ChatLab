@@ -86,9 +86,9 @@ For query endpoint details, see [ChatLab API](./chatlab-api.md).
 | 4 (fallback) | One-off import | `import_{UUID}` | `import_550e8400-e29b-41d4-a716-446655440000` |
 
 ::: warning
+
 - Avoid using file paths as sessionId input — renaming the file changes the sessionId.
-- The same sessionId **must** be used for both the initial import and all subsequent incremental imports for the same chat source.
-:::
+- The same sessionId **must** be used for both the initial import and all subsequent incremental imports for the same chat source. :::
 
 ### Request Headers
 
@@ -174,9 +174,7 @@ A successful response returns `"success": true` with write statistics. Repeating
 | `metaUpdateMode` | string | `patch` | `patch` / `none` | `patch`: overwrite non-empty fields; `none`: skip update |
 | `memberUpdateMode` | string | `upsert` | `upsert` / `none` | `upsert`: insert + update; `none`: skip update |
 
-::: tip
-When backfilling historical data, pass `"metaUpdateMode": "none"` to prevent old group names from overwriting the current value.
-:::
+::: tip When backfilling historical data, pass `"metaUpdateMode": "none"` to prevent old group names from overwriting the current value. :::
 
 ### Block Requirements
 
@@ -204,49 +202,47 @@ When backfilling historical data, pass `"metaUpdateMode": "none"` to prevent old
 
 #### chatlab Object
 
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `version` | string | Yes | Format version, currently `"0.0.2"` |
-| `exportedAt` | number | Yes | Export/generation time (Unix timestamp in seconds) |
-| `generator` | string | No | Name of the generating tool or system |
+| Field        | Type   | Required | Description                                        |
+| ------------ | ------ | -------- | -------------------------------------------------- |
+| `version`    | string | Yes      | Format version, currently `"0.0.2"`                |
+| `exportedAt` | number | Yes      | Export/generation time (Unix timestamp in seconds) |
+| `generator`  | string | No       | Name of the generating tool or system              |
 
 #### meta Object
 
-| Field | Type | Required (first import) | Description |
-| --- | --- | --- | --- |
-| `name` | string | Yes | Group or conversation name |
-| `platform` | string | Yes | Platform identifier (see enum below) |
-| `type` | string | Yes | Conversation type: `group` or `private` |
-| `groupId` | string | No | Platform-native group ID |
-| `groupAvatar` | string | No | Group avatar as base64 Data URL or network URL |
-| `ownerId` | string | No | `platformId` of the exporter/owner |
+| Field         | Type   | Required (first import) | Description                                    |
+| ------------- | ------ | ----------------------- | ---------------------------------------------- |
+| `name`        | string | Yes                     | Group or conversation name                     |
+| `platform`    | string | Yes                     | Platform identifier (see enum below)           |
+| `type`        | string | Yes                     | Conversation type: `group` or `private`        |
+| `groupId`     | string | No                      | Platform-native group ID                       |
+| `groupAvatar` | string | No                      | Group avatar as base64 Data URL or network URL |
+| `ownerId`     | string | No                      | `platformId` of the exporter/owner             |
 
 **Platform Identifier Enum:**
 
-| Value | Platform |
-| --- | --- |
-| `wechat` | WeChat |
-| `qq` | QQ |
-| `telegram` | Telegram |
-| `discord` | Discord |
-| `whatsapp` | WhatsApp |
-| `line` | LINE |
-| `slack` | Slack |
-| `unknown` | Unknown / Other |
+| Value      | Platform        |
+| ---------- | --------------- |
+| `wechat`   | WeChat          |
+| `qq`       | QQ              |
+| `telegram` | Telegram        |
+| `discord`  | Discord         |
+| `whatsapp` | WhatsApp        |
+| `line`     | LINE            |
+| `slack`    | Slack           |
+| `unknown`  | Unknown / Other |
 
-::: tip
-If your platform isn't listed, use a lowercase identifier (e.g. `signal`, `matrix`). ChatLab will apply the `unknown` analysis strategy.
-:::
+::: tip If your platform isn't listed, use a lowercase identifier (e.g. `signal`, `matrix`). ChatLab will apply the `unknown` analysis strategy. :::
 
 #### members Array Elements
 
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `platformId` | string | Yes | Member's unique platform identifier |
-| `accountName` | string | Recommended | Account name (original nickname, unchanged across groups) |
-| `groupNickname` | string | No | Group-specific nickname |
-| `avatar` | string | No | Avatar as base64 Data URL or network URL |
-| `roles` | array | No | Role list, see [Role Definitions](./chatlab-format.md) |
+| Field           | Type   | Required    | Description                                               |
+| --------------- | ------ | ----------- | --------------------------------------------------------- |
+| `platformId`    | string | Yes         | Member's unique platform identifier                       |
+| `accountName`   | string | Recommended | Account name (original nickname, unchanged across groups) |
+| `groupNickname` | string | No          | Group-specific nickname                                   |
+| `avatar`        | string | No          | Avatar as base64 Data URL or network URL                  |
+| `roles`         | array  | No          | Role list, see [Role Definitions](./chatlab-format.md)    |
 
 #### messages Array Elements
 
@@ -297,19 +293,19 @@ If your platform isn't listed, use a lowercase identifier (e.g. `signal`, `matri
 }
 ```
 
-| Field | Description |
-| --- | --- |
-| `created` | `true` if this request triggered session creation (first import) |
-| `batch.receivedCount` | Number of messages received in this batch |
-| `batch.writtenCount` | Number of messages actually written |
-| `batch.duplicateCount` | Number of messages skipped due to deduplication |
-| `session.totalCount` | Total message count in the session after this write |
-| `session.memberCount` | Total member count in the session |
-| `session.firstTimestamp` | Earliest message timestamp in the session |
-| `session.lastTimestamp` | Latest message timestamp in the session |
-| `updates.metaUpdated` | Whether meta was updated by this request |
-| `updates.membersAdded` | Number of new members added |
-| `updates.membersUpdated` | Number of existing members updated |
+| Field                    | Description                                                      |
+| ------------------------ | ---------------------------------------------------------------- |
+| `created`                | `true` if this request triggered session creation (first import) |
+| `batch.receivedCount`    | Number of messages received in this batch                        |
+| `batch.writtenCount`     | Number of messages actually written                              |
+| `batch.duplicateCount`   | Number of messages skipped due to deduplication                  |
+| `session.totalCount`     | Total message count in the session after this write              |
+| `session.memberCount`    | Total member count in the session                                |
+| `session.firstTimestamp` | Earliest message timestamp in the session                        |
+| `session.lastTimestamp`  | Latest message timestamp in the session                          |
+| `updates.metaUpdated`    | Whether meta was updated by this request                         |
+| `updates.membersAdded`   | Number of new members added                                      |
+| `updates.membersUpdated` | Number of existing members updated                               |
 
 ---
 
@@ -320,8 +316,7 @@ Deduplication is scoped to a single session and does not cross sessions.
 **Priority:**
 
 1. If `platformMessageId` is provided, it is used as the unique key (high precision, recommended).
-2. If `platformMessageId` is absent, a deterministic fallback key is generated from
-   `timestamp + sender + type + normalizedContent + replyToMessageId`.
+2. If `platformMessageId` is absent, a deterministic fallback key is generated from `timestamp + sender + type + normalizedContent + replyToMessageId`.
 
 | Layer | Mechanism | Scope | Precision |
 | --- | --- | --- | --- |
@@ -330,11 +325,11 @@ Deduplication is scoped to a single session and does not cross sessions.
 | Message-level dedup (fallback) | Deterministic key from the fields above | Fallback when `platformMessageId` is absent | Best effort |
 
 ::: warning
+
 - A message with the same `platformMessageId` will not be written again, even if `content` differs (first write wins).
 - Two different `platformMessageId` values are preserved as different messages even when every other field matches.
 - Fallback dedup treats "same sender, same second, same type, normalized content, and reply target" as a duplicate; there is a very small false positive rate.
-- **Strongly recommended**: provide `platformMessageId` — it is the most reliable deduplication key.
-:::
+- **Strongly recommended**: provide `platformMessageId` — it is the most reliable deduplication key. :::
 
 ---
 
@@ -344,10 +339,10 @@ Deduplication is scoped to a single session and does not cross sessions.
 
 **5,000 messages per batch.**
 
-| Constraint | Value | Notes |
-| --- | --- | --- |
-| JSON body size limit | 50MB | Exceeding returns `BODY_TOO_LARGE` (413) |
-| Recommended batch size | 5,000 messages | Balances performance and memory |
+| Constraint             | Value          | Notes                                    |
+| ---------------------- | -------------- | ---------------------------------------- |
+| JSON body size limit   | 50MB           | Exceeding returns `BODY_TOO_LARGE` (413) |
+| Recommended batch size | 5,000 messages | Balances performance and memory          |
 
 ### Batching Rules
 
@@ -436,17 +431,17 @@ See [ChatLab Format Specification](./chatlab-format.md) for the reserved field s
 
 ## Error Codes and Retry Strategy
 
-| Error Code | HTTP Status | Description | Retryable |
-| --- | --- | --- | --- |
-| `UNAUTHORIZED` | 401 | Invalid or missing token | No |
-| `INVALID_FORMAT` | 400 | Unsupported Content-Type or malformed body | No |
-| `INVALID_PAYLOAD` | 400 | Missing required fields, type errors, or validation failures | No |
-| `BODY_TOO_LARGE` | 413 | JSON body exceeds 50MB | No |
-| `IMPORT_IN_PROGRESS` | 409 | Another import is currently running | Yes |
-| `IDEMPOTENCY_CONFLICT` | 409 | Same idempotency key but different request body | No |
-| `IDEMPOTENCY_PENDING` | 409 | The first request with this idempotency key is still running | Yes |
-| `IMPORT_FAILED` | 500 | Internal error during import | Yes |
-| `SERVER_ERROR` | 500 | Internal server error | Yes |
+| Error Code             | HTTP Status | Description                                                  | Retryable |
+| ---------------------- | ----------- | ------------------------------------------------------------ | --------- |
+| `UNAUTHORIZED`         | 401         | Invalid or missing token                                     | No        |
+| `INVALID_FORMAT`       | 400         | Unsupported Content-Type or malformed body                   | No        |
+| `INVALID_PAYLOAD`      | 400         | Missing required fields, type errors, or validation failures | No        |
+| `BODY_TOO_LARGE`       | 413         | JSON body exceeds 50MB                                       | No        |
+| `IMPORT_IN_PROGRESS`   | 409         | Another import is currently running                          | Yes       |
+| `IDEMPOTENCY_CONFLICT` | 409         | Same idempotency key but different request body              | No        |
+| `IDEMPOTENCY_PENDING`  | 409         | The first request with this idempotency key is still running | Yes       |
+| `IMPORT_FAILED`        | 500         | Internal error during import                                 | Yes       |
+| `SERVER_ERROR`         | 500         | Internal server error                                        | Yes       |
 
 **Recommended Retry Strategy:**
 

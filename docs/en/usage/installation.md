@@ -14,10 +14,13 @@ The macOS Desktop app currently supports Apple Silicon Macs only. Intel Mac user
 
 ## CLI
 
-The CLI requires Node.js 22.19 or newer:
+The CLI requires Node.js 22.19 or newer. This fork publishes no npm package, so build and link it from a clone:
 
 ```bash
-npm install --global chatlab-cli
+pnpm install
+pnpm --filter chatlab-cli run build
+pnpm --filter chatlab-cli run ensure-native
+cd apps/cli && npm link # provides the clb / chatlab commands
 ```
 
 After installation, run:

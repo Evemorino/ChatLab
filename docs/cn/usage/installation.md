@@ -14,10 +14,13 @@ macOS Desktop 目前仅支持搭载 Apple 芯片（M 系列）的 Mac。Intel Ma
 
 ## CLI
 
-CLI 需要 Node.js 22.19 或更高版本：
+CLI 需要 Node.js 22.19 或更高版本。本 fork 不发布 npm 包，请在仓库克隆里构建并链接：
 
 ```bash
-npm install --global chatlab-cli
+pnpm install
+pnpm --filter chatlab-cli run build
+pnpm --filter chatlab-cli run ensure-native
+cd apps/cli && npm link # 提供 clb / chatlab 命令
 ```
 
 安装后运行：

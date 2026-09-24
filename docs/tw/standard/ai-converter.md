@@ -10,11 +10,7 @@ outline: deep
 
 ## 準備工具
 
-先安裝 ChatLab CLI：
-
-```bash
-npm install -g chatlab-cli
-```
+先依[安裝 ChatLab](/tw/usage/installation) 的 CLI 一節構建並連結 `clb`。
 
 再於支援 Skills 的 Agent 環境安裝轉換 Skill：
 

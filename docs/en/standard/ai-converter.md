@@ -10,11 +10,7 @@ The conversion runs locally. The skill limits inspection to required structural 
 
 ## Prepare the tools
 
-Install the ChatLab CLI:
-
-```bash
-npm install -g chatlab-cli
-```
+First build and link `clb` as described in the CLI section of [Install ChatLab](/usage/installation).
 
 Install the conversion skill in a skill-compatible agent environment:
 
