@@ -4,7 +4,7 @@ outline: deep
 
 # Install ChatLab
 
-ChatLab is available as a Desktop app, CLI, or Docker image.
+ChatLab is available as a Desktop app or CLI.
 
 ## Desktop
 
@@ -42,12 +42,6 @@ clb status          # Check service status
 clb stop            # Stop and remove the service
 ```
 
-::: tip
-`clb` is the recommended command. The legacy `chatlab` command remains available for compatibility.
-:::
-
-## Docker
-
-For a container deployment, see [Docker Deployment](/usage/docker). To share data later with Desktop or a local CLI on the same computer, use the recommended host-directory mount.
+::: tip `clb` is the recommended command. The legacy `chatlab` command remains available for compatibility. :::
 
 After installation, continue with [Quick Start](/usage/quick-start).

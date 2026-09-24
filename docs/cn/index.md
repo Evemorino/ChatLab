@@ -27,7 +27,7 @@ ChatLab 目前原生支持导入 QQ、WhatsApp、LINE、Discord、Instagram、Te
 ## 开始使用
 
 - **[快速开始](/cn/usage/quick-start)**：导入第一份聊天记录并开始使用 ChatLab。
-- **安装与部署**：选择[安装 ChatLab](/cn/usage/installation) 或 [Docker 部署](/cn/usage/docker)。
+- **安装与部署**：选择[安装 ChatLab](/cn/usage/installation)。
 - **使用指南**：查看[导出](/cn/usage/how-to-export)、[导入](/cn/usage/how-to-import)、[故障排查](/cn/usage/troubleshooting)和[常见问题](/cn/usage/faq)。
 
 ## 进一步探索

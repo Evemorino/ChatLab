@@ -6,10 +6,7 @@ const enSidebar: DefaultTheme.SidebarItem[] = [
   { text: 'Quick Start', link: '/usage/quick-start' },
   {
     text: 'Installation & Deployment',
-    items: [
-      { text: 'Install ChatLab', link: '/usage/installation' },
-      { text: 'Docker Deployment', link: '/usage/docker' },
-    ],
+    items: [{ text: 'Install ChatLab', link: '/usage/installation' }],
   },
   {
     text: 'Usage Guide',
@@ -47,10 +44,7 @@ const cnSidebar: DefaultTheme.SidebarItem[] = [
   { text: '快速开始', link: '/cn/usage/quick-start' },
   {
     text: '安装与部署',
-    items: [
-      { text: '安装 ChatLab', link: '/cn/usage/installation' },
-      { text: 'Docker 部署', link: '/cn/usage/docker' },
-    ],
+    items: [{ text: '安装 ChatLab', link: '/cn/usage/installation' }],
   },
   {
     text: '使用指南',
@@ -91,10 +85,7 @@ const twSidebar: DefaultTheme.SidebarItem[] = [
   { text: '快速開始', link: '/tw/usage/quick-start' },
   {
     text: '安裝與部署',
-    items: [
-      { text: '安裝 ChatLab', link: '/tw/usage/installation' },
-      { text: 'Docker 部署', link: '/tw/usage/docker' },
-    ],
+    items: [{ text: '安裝 ChatLab', link: '/tw/usage/installation' }],
   },
   {
     text: '使用指南',

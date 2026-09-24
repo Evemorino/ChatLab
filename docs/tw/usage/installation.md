@@ -4,7 +4,7 @@ outline: deep
 
 # 安裝 ChatLab
 
-ChatLab 提供 Desktop、CLI 和 Docker 三種安裝方式。
+ChatLab 提供 Desktop 和 CLI 兩種安裝方式。
 
 ## Desktop
 
@@ -42,12 +42,6 @@ clb status          # 查看常駐狀態
 clb stop            # 停止並移除系統服務
 ```
 
-::: tip
-建議使用 `clb`。舊的 `chatlab` 指令仍會保留，以相容既有腳本與使用習慣。
-:::
-
-## Docker
-
-需要容器部署時，請查看 [Docker 部署](/tw/usage/docker)。如果希望日後與同一台電腦上的 Desktop 或本機 CLI 共用資料，請使用其中建議的主機目錄掛載方式。
+::: tip建議使用 `clb`。舊的 `chatlab` 指令仍會保留，以相容既有腳本與使用習慣。:::
 
 安裝完成後，繼續閱讀 [快速開始](/tw/usage/quick-start)。

@@ -164,9 +164,6 @@ jobs:
           APPLE_API_KEY: ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
           APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
-          # 分析服务
-          UMAMI_ENDPOINT: ${{ secrets.UMAMI_ENDPOINT }}
-          UMAMI_WEBSITE_ID: ${{ secrets.UMAMI_WEBSITE_ID }}
         working-directory: apps/desktop
         run: pnpm run build && pnpm exec electron-builder --mac --arm64 --config electron-builder.yml -p never
 
@@ -197,6 +194,7 @@ jobs:
         needs.build-mac.result == 'success' &&
         (startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch')
       }}
+
 
     steps:
       - name: Checkout code

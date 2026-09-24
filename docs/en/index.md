@@ -27,7 +27,7 @@ If your platform is not yet supported, export the chat records first and use the
 ## Get Started
 
 - **[Quick Start](/usage/quick-start)**: Import your first chat records and start using ChatLab.
-- **Installation & Deployment**: Choose [Install ChatLab](/usage/installation) or [Docker Deployment](/usage/docker).
+- **Installation & Deployment**: Choose [Install ChatLab](/usage/installation).
 - **Usage Guide**: See how to [export](/usage/how-to-export) and [import](/usage/how-to-import) chat records, or visit [Troubleshooting](/usage/troubleshooting).
 
 ## Explore More
