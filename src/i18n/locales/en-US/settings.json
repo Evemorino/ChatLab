@@ -615,7 +615,7 @@
       "description": "MCP lets AI assistants directly query your chat records. Supports session discovery, keyword search, member stats, time distribution, and more.",
       "toolCount": "{count} tools",
       "resourceCount": "{count} resources",
-      "installHint": "Install chatlab-cli, then add the config below to your AI client:"
+      "installHint": "This fork publishes no npm package. Run pnpm --filter chatlab-mcp build in your clone, then replace <CHATLAB_REPO> in the config below with your repository path:"
     },
     "clients": {
       "other": "Other"

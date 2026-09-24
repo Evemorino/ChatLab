@@ -19,7 +19,6 @@
     "build:native": "pnpm --filter @openchatlab/parser-native build",
     "build:desktop": "pnpm --filter @openchatlab/desktop build",
     "build:mac": "pnpm --filter @openchatlab/desktop build:mac",
-    "build:skill-validator": "node scripts/build-chatlab-skill-validator.mjs",
     "ensure:native": "node scripts/ensure-node-native.mjs",
     "docs:dev": "pnpm --filter @openchatlab/docs dev",
     "docs:build": "pnpm --filter @openchatlab/docs build",

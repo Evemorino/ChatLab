@@ -14,7 +14,7 @@ import { CHATLAB_TEMP_ROOT_ENV } from './chatlab-temp.mjs'
 
 test('default test collection excludes e2e, smoke, and real external tests', () => {
   const files = [
-    'apps/cli/src/ai/chat-command.test.ts',
+    'apps/desktop/main/database/migrations.test.ts',
     'tests/chart-runtime/agent-chart-flow.test.mts',
     'tests/chart-runtime/render-chart.integration.test.ts',
     'tests/e2e/helpers/app-launcher.test.js',
@@ -24,7 +24,7 @@ test('default test collection excludes e2e, smoke, and real external tests', () 
   ]
 
   assert.deepEqual(filterDefaultTestFiles(files), [
-    'apps/cli/src/ai/chat-command.test.ts',
+    'apps/desktop/main/database/migrations.test.ts',
     'tests/chart-runtime/agent-chart-flow.test.mts',
     'tests/chart-runtime/render-chart.integration.test.ts',
   ])

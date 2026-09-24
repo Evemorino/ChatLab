@@ -13,7 +13,6 @@
     "../../packages/config/**/*",
     "../../packages/parser/**/*",
     "../../packages/mcp-server/**/*",
-    "../../apps/cli/**/*",
     "../../packages/tools/**/*",
     "../../packages/sync/**/*",
     "../../packages/http-routes/**/*"

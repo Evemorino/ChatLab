@@ -130,12 +130,11 @@ jobs:
           echo "Injecting version: $VERSION"
           node -e "
             const fs = require('fs');
-            for (const p of ['apps/desktop/package.json', 'apps/cli/package.json']) {
-              const pkg = JSON.parse(fs.readFileSync(p, 'utf-8'));
-              pkg.version = '${VERSION}';
-              fs.writeFileSync(p, JSON.stringify(pkg, null, 2) + '\n');
-              console.log(p + ' → ' + '${VERSION}');
-            }
+            const p = 'apps/desktop/package.json';
+            const pkg = JSON.parse(fs.readFileSync(p, 'utf-8'));
+            pkg.version = '${VERSION}';
+            fs.writeFileSync(p, JSON.stringify(pkg, null, 2) + '\n');
+            console.log(p + ' → ' + '${VERSION}');
           "
 
       - name: Cache Electron and electron-builder binaries

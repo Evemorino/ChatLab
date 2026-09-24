@@ -615,7 +615,7 @@
       "description": "MCP により、AI アシスタントがチャット記録を直接クエリできます。セッション検出、キーワード検索、メンバー統計、時間分布などをサポートしています。",
       "toolCount": "{count} 個のツール",
       "resourceCount": "{count} 個のリソース",
-      "installHint": "chatlab-cli をインストール後、AI クライアントに以下の設定を追加してください："
+      "installHint": "この fork は npm パッケージを公開していません。チェックアウト先で pnpm --filter chatlab-mcp build を実行し、下の設定の <CHATLAB_REPO> を実際のリポジトリパスに置き換えてください："
     },
     "clients": {
       "other": "その他"

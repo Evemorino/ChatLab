@@ -4,8 +4,6 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
 import * as nodeRuntime from '../packages/node-runtime/src/index'
-import { runServerAgent } from '../apps/cli/src/ai/agent'
-import { runChatTurn } from '../apps/cli/src/ai/chat-command'
 import { AIChatManager } from '../packages/node-runtime/src/ai/chats'
 import { runCrossChatAgent } from '../packages/node-runtime/src/ai/cross-chat-agent'
 import type { AgentStreamChunk } from '../packages/node-runtime/src/ai/agent/event-handler'
@@ -13,8 +11,8 @@ import { buildPiModel } from '../packages/node-runtime/src/ai/llm-builder'
 import { createAiTranslate } from '../packages/node-runtime/src/ai/i18n'
 import type { LLMConfigStore } from '../packages/node-runtime/src/ai/llm-config-store'
 
-// Exercise the real Pi SSE parser and all Node entry points, without a real provider or user data.
-test('session and global agents surface truncated output instead of reporting successful completion', async (t) => {
+// Exercise the real Pi SSE parser and both surviving agent entry points, without a real provider or user data.
+test('desktop and global agents surface truncated output instead of reporting successful completion', async (t) => {
   const dir = mkdtempSync(join(tmpdir(), 'chatlab-agent-output-limit-'))
   const manager = new AIChatManager(dir, { nativeBinding: process.env.CHATLAB_TEST_SQLITE_NATIVE_BINDING })
   const config = {
@@ -69,7 +67,7 @@ test('session and global agents surface truncated output instead of reporting su
       getDefaultAssistantConfig: () => config,
     } as LLMConfigStore)
 
-    for (const kind of ['session', 'global', 'desktop session', 'CLI command'] as const) {
+    for (const kind of ['global', 'desktop session'] as const) {
       for (const scenario of [
         { name: 'thinking only', text: '', finishReason: 'length' },
         { name: 'partial answer', text: 'The conclusion is', finishReason: 'length' },
@@ -118,26 +116,7 @@ test('session and global agents surface truncated output instead of reporting su
             aiChatManager: manager,
             onEvent: (event: AgentStreamChunk) => events.push(event),
           }
-          if (kind === 'CLI command') {
-            await runChatTurn(
-              { aiChatId: chat.id, question: common.userMessage, json: true, locale: common.locale },
-              {
-                dbManager: { open: () => ({}) } as never,
-                pathProvider: {} as never,
-                aiChatManager: manager,
-                createRunAgentStream: () => async (_params, onEvent) => {
-                  await runServerAgent({
-                    ...common,
-                    llmConfig: config,
-                    onEvent: (event) => {
-                      common.onEvent(event)
-                      onEvent(event)
-                    },
-                  })
-                },
-              }
-            )
-          } else if (kind === 'global') {
+          if (kind === 'global') {
             await runCrossChatAgent({
               ...common,
               piModel: buildPiModel(config),
@@ -145,14 +124,12 @@ test('session and global agents surface truncated output instead of reporting su
               tools: [],
               memoryService: { list: () => [] },
             })
-          } else if (kind === 'desktop session') {
+          } else {
             await runDesktopAgent(
               { ...common, sessionId: 'session-1', chatType: 'private' },
               common.onEvent,
               new AbortController().signal
             )
-          } else {
-            await runServerAgent({ ...common, llmConfig: config })
           }
 
           assert.equal(
@@ -188,22 +165,6 @@ test('session and global agents surface truncated output instead of reporting su
             cacheWriteTokens: 0,
           }
           assert.deepEqual(doneUsage, expectedUsage)
-          if (kind === 'CLI command') {
-            const messages = manager.getMessages(chat.id)
-            assert.deepEqual(
-              messages.map((message) => message.content),
-              [common.userMessage, scenario.text]
-            )
-            assert.ok(messages[1].contentBlocks?.some((block) => block.type === 'think'))
-            assert.equal(
-              messages[1].contentBlocks?.some((block) => block.type === 'error'),
-              truncated
-            )
-            assert.deepEqual(manager.getAIChatTokenUsage(chat.id), expectedUsage)
-            if (scenario.text) {
-              assert.equal(manager.getHistoryForAgent(chat.id).at(-1)?.content, scenario.text)
-            }
-          }
         })
       }
     }

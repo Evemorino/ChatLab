@@ -11,7 +11,6 @@ import MigrationModal from './components/MigrationModal.vue'
 import ImportArea from '@/components/import/ImportArea.vue'
 import ImportTabSelector from './components/import/ImportTabSelector.vue'
 import ApiImportCard from './components/import/ApiImportCard.vue'
-import CliImportCard from './components/import/CliImportCard.vue'
 import ChangelogModal from '@/components/home/ChangelogModal.vue'
 import HomeFooter from '@/components/home/HomeFooter.vue'
 import DemoImportButton from '@/components/home/DemoImportButton.vue'
@@ -21,7 +20,7 @@ const { t, locale } = useI18n()
 const sessionStore = useSessionStore()
 
 // 导入方式选中的 Tab 状态
-const activeTab = ref<'file' | 'api' | 'cli'>('file')
+const activeTab = ref<'file' | 'api'>('file')
 
 // 首页可能在启动遮罩下提前挂载；等待全局揭示信号，避免分层动画在用户看不到时播放完。
 const isMounted = ref(false)
@@ -133,9 +132,6 @@ const tutorialExportUrl = computed(() => {
 
           <!-- API 导入区域：统一承载自动拉取与 API 推送 -->
           <ApiImportCard v-else-if="activeTab === 'api'" />
-
-          <!-- CLI 导入区域：Agent Skill 与手动 CLI -->
-          <CliImportCard v-else-if="activeTab === 'cli'" />
         </div>
 
         <div

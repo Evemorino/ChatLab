@@ -44,11 +44,14 @@ test('reports valid native binding when it can be loaded by current Node', () =>
 
 test('defaults to the repository native directory and honours --out', () => {
   assert.equal(resolveNativeDir(['node', 'script']), path.join(repoRoot, 'native'))
-  assert.equal(resolveNativeDir(['node', 'script', '--out', 'apps/cli/native']), path.join(repoRoot, 'apps/cli/native'))
+  assert.equal(
+    resolveNativeDir(['node', 'script', '--out', 'apps/desktop/native']),
+    path.join(repoRoot, 'apps/desktop/native')
+  )
   assert.throws(() => resolveNativeDir(['node', 'script', '--out']), /--out requires a directory/)
 })
 
-test('prints status to stderr so CLI stdout stays machine-readable', () => {
+test('prints status to stderr so stdout stays machine-readable', () => {
   const result = spawnSync(process.execPath, ['scripts/ensure-node-native.mjs', '--check'], {
     encoding: 'utf8',
     cwd: repoRoot,

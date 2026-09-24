@@ -1,5 +1,5 @@
 /**
- * Safe config field writer for `clb config set`.
+ * Safe config field writer for runtime settings changes.
  *
  * Wraps writeConfigField with guardrails: only schema-defined keys are accepted,
  * values are parsed by schema type, and the file is validated after writing with

@@ -26,7 +26,6 @@ dist/
 docs/.vitepress/cache/
 docs/.vitepress/dist/
 /native/
-apps/cli/native/
 apps/desktop/native/
 .history/
 out

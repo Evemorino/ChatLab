@@ -3,19 +3,12 @@
   "tabs": {
     "file": "ファイルインポート",
     "api": "API インポート",
-    "cli": "CLI インポート",
     "autoSyncTitle": "自動同期",
     "autoSyncDescription": "ChatLab が外部データソースから新しいチャット履歴を定期的に取得します。",
     "autoSyncButton": "自動同期を設定",
     "apiPushTitle": "API プッシュ",
     "apiPushDescription": "外部ツール、プラグイン、スクリプトからローカル API 経由で書き込みます。",
-    "apiPushButton": "API を設定",
-    "agentImportTitle": "AI Agent でインポート",
-    "agentImportDescription": "公式 Skill をインストールして、チャット履歴を自動的にインポートします。",
-    "manualCliTitle": "CLI を手動で使用",
-    "manualCliDescription": "ターミナル操作、バッチスクリプト、繰り返し可能な自動化に適しています。",
-    "copyCommand": "コマンドをコピー",
-    "viewDocs": "ドキュメントを見る"
+    "apiPushButton": "API を設定"
   },
   "import": {
     "dropHint": "マウスを離してファイルをインポート",
