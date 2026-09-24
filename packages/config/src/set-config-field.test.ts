@@ -17,60 +17,43 @@ const configJson = join(tempHome, '.chatlab', 'config.json')
 
 beforeEach(() => {
   rmSync(join(tempHome, '.chatlab'), { recursive: true, force: true })
-  delete process.env.CHATLAB_CLI_ALLOW_RAW
-  delete process.env.CHATLAB_API_PORT
+  delete process.env.CHATLAB_DATA_DIR
+  delete process.env.CHATLAB_LOCALE_LANG
 })
 
 after(() => {
   rmSync(tempHome, { recursive: true, force: true })
 })
 
-describe('cli config section', () => {
-  it('defaults allow_raw=false and allow_sql=true', () => {
-    const config = loadConfig()
-    assert.equal(config.cli.allow_raw, false)
-    assert.equal(config.cli.allow_sql, true)
-  })
-
-  it('maps CHATLAB_CLI_ALLOW_RAW env var to cli.allow_raw', () => {
-    process.env.CHATLAB_CLI_ALLOW_RAW = '1'
-    assert.equal(loadConfig().cli.allow_raw, true)
-
-    process.env.CHATLAB_CLI_ALLOW_RAW = 'true'
-    assert.equal(loadConfig().cli.allow_raw, true)
-
-    process.env.CHATLAB_CLI_ALLOW_RAW = '0'
-    assert.equal(loadConfig().cli.allow_raw, false)
-  })
-})
-
 describe('setConfigField', () => {
-  it('persists the Windows close behavior', () => {
+  it('persists the desktop close behavior', () => {
     const result = setConfigField('desktop.close_behavior', 'background')
 
     assert.deepEqual(result, { section: 'desktop', key: 'close_behavior', value: 'background' })
     assert.equal(loadConfig().desktop.close_behavior, 'background')
   })
 
-  it('writes boolean value and round-trips via loadConfig', () => {
-    const result = setConfigField('cli.allow_raw', 'true')
-    assert.deepEqual(result, { section: 'cli', key: 'allow_raw', value: true })
-    assert.equal(loadConfig().cli.allow_raw, true)
+  it('parses boolean values by schema type and round-trips via loadConfig', () => {
+    const result = setConfigField('data.electron_migration_done', 'true')
+    assert.deepEqual(result, { section: 'data', key: 'electron_migration_done', value: true })
+    assert.equal(loadConfig().data.electron_migration_done, true)
 
-    setConfigField('cli.allow_raw', 'false')
-    assert.equal(loadConfig().cli.allow_raw, false)
+    setConfigField('data.electron_migration_done', 'false')
+    assert.equal(loadConfig().data.electron_migration_done, false)
   })
 
   it('parses number values by schema type', () => {
-    setConfigField('api.port', '8080')
-    assert.equal(loadConfig().api.port, 8080)
+    setConfigField('ui.session_gap_threshold', '7200')
+    assert.equal(loadConfig().ui.session_gap_threshold, 7200)
   })
 
-  it('validates written file values without environment overrides', () => {
-    process.env.CHATLAB_API_PORT = '3110'
+  it('rejects a written value that violates the schema while environment overrides are present', () => {
+    process.env.CHATLAB_DATA_DIR = '/tmp/chatlab-env-data'
 
+    // validateConfigFile re-parses the file itself, so an out-of-range written
+    // value cannot be rescued by the environment layer.
     assert.throws(
-      () => setConfigField('api.port', '70000'),
+      () => setConfigField('ui.session_gap_threshold', '100000'),
       (err: unknown) => {
         assert.ok(err instanceof ConfigSetError)
         assert.equal(err.reason, 'invalid_config')
@@ -86,50 +69,36 @@ describe('setConfigField', () => {
       configJson,
       JSON.stringify({
         data: { user_data_dir: '/tmp/chatlab-legacy-data' },
-        api: { host: '0.0.0.0' },
+        locale: { lang: 'zh-CN' },
       }),
       'utf-8'
     )
 
-    setConfigField('cli.allow_raw', 'true')
+    setConfigField('ui.session_gap_threshold', '7200')
 
     const config = loadConfig()
-    assert.equal(config.cli.allow_raw, true)
     assert.equal(config.data.user_data_dir, '/tmp/chatlab-legacy-data')
-    assert.equal(config.api.host, '0.0.0.0')
+    assert.equal(config.locale.lang, 'zh-CN')
+    assert.equal(config.ui.session_gap_threshold, 7200)
   })
 
   it('rejects unknown section or key without touching the file', () => {
-    assert.throws(
-      () => setConfigField('nope.key', 'x'),
-      (err: unknown) => {
-        assert.ok(err instanceof ConfigSetError)
-        assert.equal(err.reason, 'unknown_key')
-        return true
-      }
-    )
-    assert.throws(
-      () => setConfigField('cli.nope', 'x'),
-      (err: unknown) => {
-        assert.ok(err instanceof ConfigSetError)
-        assert.equal(err.reason, 'unknown_key')
-        return true
-      }
-    )
-    assert.throws(
-      () => setConfigField('cli', 'x'),
-      (err: unknown) => {
-        assert.ok(err instanceof ConfigSetError)
-        assert.equal(err.reason, 'unknown_key')
-        return true
-      }
-    )
+    for (const fieldPath of ['nope.key', 'desktop.nope', 'desktop']) {
+      assert.throws(
+        () => setConfigField(fieldPath, 'x'),
+        (err: unknown) => {
+          assert.ok(err instanceof ConfigSetError)
+          assert.equal(err.reason, 'unknown_key')
+          return true
+        }
+      )
+    }
     assert.equal(existsSync(configToml), false)
   })
 
   it('rejects values that do not parse as the schema type', () => {
     assert.throws(
-      () => setConfigField('cli.allow_raw', 'yes'),
+      () => setConfigField('data.electron_migration_done', 'yes'),
       (err: unknown) => {
         assert.ok(err instanceof ConfigSetError)
         assert.equal(err.reason, 'invalid_value')
@@ -137,7 +106,7 @@ describe('setConfigField', () => {
       }
     )
     assert.throws(
-      () => setConfigField('api.port', 'not-a-number'),
+      () => setConfigField('ui.session_gap_threshold', 'not-a-number'),
       (err: unknown) => {
         assert.ok(err instanceof ConfigSetError)
         assert.equal(err.reason, 'invalid_value')
@@ -148,7 +117,7 @@ describe('setConfigField', () => {
   })
 
   it('rolls back when post-write validation fails', () => {
-    setConfigField('cli.allow_raw', 'true')
+    setConfigField('ui.session_gap_threshold', '7200')
     const original = readFileSync(configToml, 'utf-8')
 
     // typeof default is string, passes type parsing, but violates the zod enum on reload
@@ -162,7 +131,7 @@ describe('setConfigField', () => {
     )
 
     assert.equal(readFileSync(configToml, 'utf-8'), original)
-    assert.equal(loadConfig().cli.allow_raw, true)
+    assert.equal(loadConfig().ui.session_gap_threshold, 7200)
   })
 
   it('removes the file on rollback when it did not exist before', () => {
@@ -179,11 +148,11 @@ describe('setConfigField', () => {
 
   it('refuses to overwrite an unparseable config file', () => {
     mkdirSync(join(tempHome, '.chatlab'), { recursive: true })
-    const corrupt = '[cli\nallow_raw ='
+    const corrupt = '[ui\nsession_gap_threshold ='
     writeFileSync(configToml, corrupt, 'utf-8')
 
     assert.throws(
-      () => setConfigField('cli.allow_raw', 'true'),
+      () => setConfigField('ui.session_gap_threshold', '7200'),
       (err: unknown) => {
         assert.ok(err instanceof ConfigSetError)
         assert.equal(err.reason, 'unreadable_config')
@@ -191,5 +160,51 @@ describe('setConfigField', () => {
       }
     )
     assert.equal(readFileSync(configToml, 'utf-8'), corrupt)
+  })
+})
+
+/**
+ * The `[api]` and `[cli]` sections belonged to the retired CLI and CLI Web
+ * runtimes. Existing files may still contain them, so removal has to be
+ * non-destructive in both directions: ignored when read, untouched on disk.
+ */
+describe('retired api and cli sections', () => {
+  const legacyToml = `[api]
+port = 4110
+host = "0.0.0.0"
+token = "clb_legacy_token"
+require_auth = true
+
+[cli]
+allow_raw = true
+allow_sql = false
+
+[ui]
+session_gap_threshold = 1800
+`
+
+  it('loads without error and ignores the retired values', () => {
+    mkdirSync(join(tempHome, '.chatlab'), { recursive: true })
+    writeFileSync(configToml, legacyToml, 'utf-8')
+
+    const config = loadConfig()
+
+    assert.equal(config.ui.session_gap_threshold, 1800)
+    assert.equal('api' in config, false)
+    assert.equal('cli' in config, false)
+  })
+
+  it('keeps the retired sections on disk when writing an unrelated field', () => {
+    mkdirSync(join(tempHome, '.chatlab'), { recursive: true })
+    writeFileSync(configToml, legacyToml, 'utf-8')
+
+    setConfigField('desktop.close_behavior', 'quit')
+
+    const written = readFileSync(configToml, 'utf-8')
+    assert.match(written, /\[api\]/)
+    assert.match(written, /token = "clb_legacy_token"/)
+    assert.match(written, /\[cli\]/)
+    assert.match(written, /allow_raw = true/)
+    assert.equal(loadConfig().desktop.close_behavior, 'quit')
   })
 })
