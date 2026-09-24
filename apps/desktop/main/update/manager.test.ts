@@ -239,4 +239,16 @@ test('desktop updater workflows', async (t) => {
     assert.equal(harness.dialogCalls.at(-1)?.parent, win)
     assert.equal(harness.autoUpdater.downloadCalls, downloadsBefore + 1)
   })
+
+  await t.test('wires update listeners without checking the upstream feed on startup', async (t) => {
+    t.mock.timers.enable({ apis: ['setTimeout'] })
+    const checksBefore = harness.autoUpdater.checkCalls
+    const win = new FakeUpdateWindow({ send: () => {} })
+
+    harness.checkUpdate(win)
+    t.mock.timers.tick(60_000)
+
+    assert.equal(harness.autoUpdater.checkCalls, checksBefore)
+    assert.ok(harness.autoUpdater.listenerCount('update-available') > 0)
+  })
 })

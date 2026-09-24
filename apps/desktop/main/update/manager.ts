@@ -223,14 +223,8 @@ export function checkUpdate(win: BrowserWindow): void {
 
   autoUpdater.on('error', handleUpdateError)
 
-  setTimeout(() => {
-    isManualCheck = false
-    resetToDefaultSource()
-
-    autoUpdater.checkForUpdates().catch((error) => {
-      console.log('[Update] Update check failed:', error)
-    })
-  }, 3000)
+  // 本 fork 不做启动期自动检查：仅保留上面注册的监听器，更新由用户在“设置 → 关于”
+  // 里手动触发（manualCheckForUpdates），这样不会在后台请求上游发布源。
 }
 
 export function manualCheckForUpdates(): void {
