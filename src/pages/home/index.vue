@@ -150,7 +150,7 @@ const tutorialExportUrl = computed(() => {
       </div>
 
       <!-- Footer - 固定在底部 -->
-      <HomeFooter :remote-config-enabled="true" @open-changelog="openChangelog" @open-terms="openTerms" />
+      <HomeFooter @open-changelog="openChangelog" @open-terms="openTerms" />
     </div>
 
     <!-- 新用户语言选择弹窗 -->

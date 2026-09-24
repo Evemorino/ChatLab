@@ -1,13 +1,7 @@
-export type HomeFooterConfigSource = 'cache-only' | 'platform' | 'network'
+export type HomeFooterConfigSource = 'platform' | 'network'
 
-export interface HomeFooterConfigSourceOptions {
-  remoteConfigEnabled: boolean
-  isElectron: boolean
-}
-
-export function resolveHomeFooterConfigSource(options: HomeFooterConfigSourceOptions): HomeFooterConfigSource {
-  if (!options.remoteConfigEnabled) return 'cache-only'
-  return options.isElectron ? 'platform' : 'network'
+export function resolveHomeFooterConfigSource(isElectron: boolean): HomeFooterConfigSource {
+  return isElectron ? 'platform' : 'network'
 }
 
 export function filterHomeFooterLinks<T extends { id: string; action?: string }>(

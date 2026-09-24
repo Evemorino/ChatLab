@@ -28,14 +28,12 @@ pnpm install
 
 | Command | Purpose |
 | --- | --- |
-| `pnpm dev` | Select Desktop, CLI Web, Web WASM, API Server, or docs interactively |
+| `pnpm dev` | Select Desktop, CLI Web, API Server, or docs interactively |
 | `pnpm dev:desktop` | Start the Electron desktop app in development mode |
 | `pnpm dev:cli-web` | Start CLI Web (Node backend + Web UI) in development mode at `http://127.0.0.1:3100/` by default |
-| `pnpm dev:web-wasm` | Start Web WASM (browser-only runtime) at `http://127.0.0.1:3130/` by default |
 | `pnpm docs:dev` | Start the public docs site locally |
 | `pnpm build:desktop` | Build the desktop app |
 | `pnpm build:cli-web` | Build the CLI Web UI |
-| `pnpm build:web-wasm` | Build Web WASM |
 | `pnpm docs:build` | Build the public docs site |
 | `pnpm run type-check:all` | Run both web and Node type checks |
 | `pnpm lint` | Run ESLint with auto-fix |
@@ -46,10 +44,7 @@ For small changes, prefer targeted checks for the files or package you changed. 
 ## Platform Terminology
 
 - **CLI Web** runs through `clb web` and includes a Node.js backend plus the Web UI.
-- **Web WASM** has no Node.js backend; parsing, storage, and queries run in the browser.
-- "Web" is the umbrella term. When context cannot distinguish the platform, it defaults to **Web WASM**.
 - "Backend" and "API Server" refer only to the Node.js process, not the complete CLI Web platform.
-- **Browser Runtime** refers only to technical capabilities such as Workers, OPFS, SQLite WASM, and browser adapters; it is not another platform name.
 
 ## Repository Structure
 
@@ -68,7 +63,7 @@ For small changes, prefer targeted checks for the files or package you changed. 
 
 ## Architecture Boundaries
 
-ChatLab maintains the Electron desktop app, CLI Web, and Web WASM. When changing shared business behavior, put the logic in `packages/node-runtime/src/services/` or `packages/core/` first, and keep entry points thin.
+ChatLab maintains the Electron desktop app and CLI Web. When changing shared business behavior, put the logic in `packages/node-runtime/src/services/` or `packages/core/` first, and keep entry points thin.
 
 - Do not duplicate complex business flows inside Electron IPC handlers or CLI HTTP routes.
 - Do not bypass `packages/core/` in entry points to write core SQL operations such as member merge, delete, or alias updates.
@@ -129,18 +124,18 @@ Compatibility-related changes should cover:
 
 ## Common Change Entry Points
 
-| If you want to change | Start here |
-| --- | --- |
-| Frontend pages and components | `src/pages/`, `src/components/` |
-| Chart analysis | `src/components/analysis/`, `src/components/charts/` |
-| Data, message, and session API calls | `src/services/` |
-| Electron main process | `apps/desktop/main/`, `apps/desktop/preload/` |
-| CLI and Web API | `apps/cli/` |
-| Shared business logic | `packages/node-runtime/src/services/`, `packages/core/` |
-| AI tools and agents | `packages/tools/`, `packages/node-runtime/src/ai/`, `src/services/ai*` |
-| Import parsing | `packages/core/`, `apps/cli/src/import/`, `src/services/import/` |
-| Documentation site | `docs/`, `docs/.vitepress/config.mts` |
-| Changelog | `changelogs/` |
+| If you want to change                | Start here                                                             |
+| ------------------------------------ | ---------------------------------------------------------------------- |
+| Frontend pages and components        | `src/pages/`, `src/components/`                                        |
+| Chart analysis                       | `src/components/analysis/`, `src/components/charts/`                   |
+| Data, message, and session API calls | `src/services/`                                                        |
+| Electron main process                | `apps/desktop/main/`, `apps/desktop/preload/`                          |
+| CLI and Web API                      | `apps/cli/`                                                            |
+| Shared business logic                | `packages/node-runtime/src/services/`, `packages/core/`                |
+| AI tools and agents                  | `packages/tools/`, `packages/node-runtime/src/ai/`, `src/services/ai*` |
+| Import parsing                       | `packages/core/`, `apps/cli/src/import/`, `src/services/import/`       |
+| Documentation site                   | `docs/`, `docs/.vitepress/config.mts`                                  |
+| Changelog                            | `changelogs/`                                                          |
 
 ## Tests And Checks
 
