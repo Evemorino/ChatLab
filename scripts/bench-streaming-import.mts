@@ -38,7 +38,7 @@ import {
 import { createChatLabTempDir } from './chatlab-temp.mjs'
 
 const scriptPath = fileURLToPath(import.meta.url)
-const nativeBinding = path.resolve('apps/cli/native/better_sqlite3.node')
+const nativeBinding = path.resolve('native/better_sqlite3.node')
 const memberCount = 200
 const sampleTexts = [
   '今天天气不错，我们出去玩吧！',

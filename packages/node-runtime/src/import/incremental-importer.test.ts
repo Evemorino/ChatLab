@@ -7,7 +7,7 @@ import { CHAT_DB_SCHEMA, generateSessionIndex } from '@openchatlab/core'
 import { openBetterSqliteDatabase } from '../better-sqlite3-adapter'
 import { analyzeIncrementalImport, incrementalImport, type IncrementalImportDeps } from './incremental-importer'
 
-const nativeBinding = path.resolve('apps/cli/native/better_sqlite3.node')
+const nativeBinding = path.resolve('native/better_sqlite3.node')
 
 function makeTempDir(): string {
   const baseDir = process.env.CHATLAB_TEST_TMPDIR ?? (fs.existsSync('/private/tmp') ? '/private/tmp' : os.tmpdir())

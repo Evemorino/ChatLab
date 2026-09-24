@@ -59,9 +59,9 @@ jobs:
         run: pnpm run check:workspace-deps
 
       # 共享 node_modules 的 better-sqlite3 由 pnpm install 保持 Node ABI
-      # （desktop 不再有 electron-rebuild postinstall），这里只需准备 CLI 专属副本。
+      # （desktop 不再有 electron-rebuild postinstall），测试用的独立副本产出在仓库根 native/。
       - name: Prepare better-sqlite3 for Node tests
-        run: pnpm --filter chatlab-cli run ensure-native
+        run: pnpm run ensure:native
 
       - name: Build MCP package for workspace imports
         run: pnpm --filter chatlab-mcp build

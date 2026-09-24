@@ -93,7 +93,7 @@ async function main() {
   const options = parseArgs(process.argv.slice(2))
   await ensureEmptyDirectory(options.databaseDir)
   await ensureEmptyDirectory(options.cacheDir)
-  const nativeBinding = fileURLToPath(new URL('../apps/cli/native/better_sqlite3.node', import.meta.url))
+  const nativeBinding = fileURLToPath(new URL('../native/better_sqlite3.node', import.meta.url))
 
   for (let index = 1; index <= options.sessions; index += 1) {
     const sessionId = `benchmark-${String(index).padStart(3, '0')}`

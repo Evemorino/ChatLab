@@ -4,8 +4,11 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import test from 'node:test'
+import { fileURLToPath } from 'node:url'
 
-import { getNativeStatus } from './ensure-native.mjs'
+import { getNativeStatus, resolveNativeDir } from './ensure-node-native.mjs'
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
 test('reports missing native binding', () => {
   const dir = mkdtempSync(path.join(tmpdir(), 'chatlab-native-missing-'))
@@ -34,15 +37,21 @@ test('reports invalid native binding load failure', () => {
 })
 
 test('reports valid native binding when it can be loaded by current Node', () => {
-  const nativePath = path.resolve('apps/cli/native/better_sqlite3.node')
-  const status = getNativeStatus(nativePath)
+  const status = getNativeStatus(path.resolve('native/better_sqlite3.node'))
   assert.equal(status.ok, true)
   assert.equal(status.reason, 'valid')
 })
 
+test('defaults to the repository native directory and honours --out', () => {
+  assert.equal(resolveNativeDir(['node', 'script']), path.join(repoRoot, 'native'))
+  assert.equal(resolveNativeDir(['node', 'script', '--out', 'apps/cli/native']), path.join(repoRoot, 'apps/cli/native'))
+  assert.throws(() => resolveNativeDir(['node', 'script', '--out']), /--out requires a directory/)
+})
+
 test('prints status to stderr so CLI stdout stays machine-readable', () => {
-  const result = spawnSync(process.execPath, ['apps/cli/scripts/ensure-native.mjs', '--check'], {
+  const result = spawnSync(process.execPath, ['scripts/ensure-node-native.mjs', '--check'], {
     encoding: 'utf8',
+    cwd: repoRoot,
   })
 
   assert.equal(result.status, 0)

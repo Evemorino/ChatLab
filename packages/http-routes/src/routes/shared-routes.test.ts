@@ -27,7 +27,7 @@ import { createDatabaseRestSessionProvider } from './rest/session-provider'
 import { registerAutomationRoutes } from './web/automation'
 import { registerSessionRoutes } from './web/sessions'
 
-const nativeBinding = path.resolve('apps/cli/native/better_sqlite3.node')
+const nativeBinding = path.resolve('native/better_sqlite3.node')
 const testSystemDir = path.join(process.env.CHATLAB_TEST_TMPDIR ?? os.tmpdir(), `chatlab-shared-routes-${process.pid}`)
 
 class SqlitePreparedStatement implements PreparedStatement {

@@ -63,7 +63,7 @@ const MEMBER_ACTIVITY_URL = `/_web/sessions/${SESSION_ID}/stats/member-activity`
 const JOURNEY_URL = `/_web/sessions/${SESSION_ID}/analytics/journey`
 const KEYWORD_URL = `/_web/sessions/${SESSION_ID}/analytics/laugh`
 const RELATIONSHIP_GALAXY_URL = `/_web/sessions/${SESSION_ID}/analytics/relationship-galaxy`
-const nativeBinding = path.resolve('apps/cli/native/better_sqlite3.node')
+const nativeBinding = path.resolve('native/better_sqlite3.node')
 
 describe('analytics routes', () => {
   let root: string

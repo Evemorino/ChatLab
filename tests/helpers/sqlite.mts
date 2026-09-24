@@ -3,13 +3,12 @@ import { resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import Database from 'better-sqlite3'
 
-export const testSqliteNativeBinding = resolve('apps/cli/native/better_sqlite3.node')
+export const testSqliteNativeBinding = resolve('native/better_sqlite3.node')
 
 function assertTestSqliteNativeBinding(): string {
   if (!existsSync(testSqliteNativeBinding)) {
     throw new Error(
-      `Missing test better-sqlite3 native binding: ${testSqliteNativeBinding}. ` +
-        'Run `pnpm --filter chatlab-cli run ensure-native` first.'
+      `Missing test better-sqlite3 native binding: ${testSqliteNativeBinding}. ` + 'Run `pnpm run ensure:native` first.'
     )
   }
 
@@ -23,7 +22,7 @@ function assertTestSqliteNativeBinding(): string {
     const detail = (result.stderr || result.stdout || result.error?.message || 'native binding failed to load').trim()
     throw new Error(
       `Invalid test better-sqlite3 native binding: ${testSqliteNativeBinding}. ${detail}. ` +
-        'Run `pnpm --filter chatlab-cli run ensure-native` to rebuild it for the current Node.js.'
+        'Run `pnpm run ensure:native` to rebuild it for the current Node.js.'
     )
   }
 

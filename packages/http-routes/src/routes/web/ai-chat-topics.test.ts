@@ -8,7 +8,7 @@ import type { PathProvider } from '@openchatlab/core'
 import type { SessionRuntimeAdapter } from '@openchatlab/node-runtime'
 import { registerAiChatTopicRoutes } from './ai-chat-topics'
 
-const nativeBinding = path.resolve('apps/cli/native/better_sqlite3.node')
+const nativeBinding = path.resolve('native/better_sqlite3.node')
 
 test('chat topic routes expose persisted run state and reject generation without an LLM', async (t) => {
   const root = fs.mkdtempSync(path.join(fs.existsSync('/private/tmp') ? '/private/tmp' : os.tmpdir(), 'topic-routes-'))

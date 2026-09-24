@@ -10,7 +10,7 @@ import { resolveAutoImportTarget, resolveAutoImportTargetPlan, type AutoImportMa
 import { autoImportFile } from './auto-importer'
 import { incrementalImport } from './incremental-importer'
 
-const nativeBinding = path.resolve('apps/cli/native/better_sqlite3.node')
+const nativeBinding = path.resolve('native/better_sqlite3.node')
 
 interface SourceMeta {
   name: string

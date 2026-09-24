@@ -7,9 +7,20 @@ import { spawnSync } from 'node:child_process'
 
 const currentFile = fileURLToPath(import.meta.url)
 const scriptDir = dirname(currentFile)
-const serverDir = dirname(scriptDir)
-const nativePath = resolve(serverDir, 'native/better_sqlite3.node')
-const rebuildScript = resolve(scriptDir, 'rebuild-native.sh')
+const repoRoot = dirname(scriptDir)
+const rebuildScript = resolve(scriptDir, 'rebuild-node-native.sh')
+
+export const DEFAULT_NATIVE_DIR = 'native'
+
+export function resolveNativeDir(argv) {
+  const index = argv.indexOf('--out')
+  if (index === -1) return resolve(repoRoot, DEFAULT_NATIVE_DIR)
+  const target = argv[index + 1]
+  if (!target || target.startsWith('--')) {
+    throw new Error('--out requires a directory relative to the repository root')
+  }
+  return resolve(repoRoot, target)
+}
 
 export function getNativeStatus(bindingPath, nodeExecutable = process.execPath) {
   if (!existsSync(bindingPath)) {
@@ -33,9 +44,9 @@ export function getNativeStatus(bindingPath, nodeExecutable = process.execPath) 
   }
 }
 
-function runRebuild() {
-  const result = spawnSync('bash', [rebuildScript], {
-    cwd: serverDir,
+function runRebuild(targetDir) {
+  const result = spawnSync('bash', [rebuildScript, targetDir], {
+    cwd: repoRoot,
     stdio: 'inherit',
   })
 
@@ -46,29 +57,31 @@ function runRebuild() {
 
 function main() {
   const checkOnly = process.argv.includes('--check')
+  const nativeDir = resolveNativeDir(process.argv)
+  const nativePath = resolve(nativeDir, 'better_sqlite3.node')
   const status = getNativeStatus(nativePath)
 
   if (status.ok) {
-    console.error(`[server native] better-sqlite3 ready (Node ABI ${status.abi})`)
+    console.error(`[node native] better-sqlite3 ready (Node ABI ${status.abi})`)
     return
   }
 
   if (checkOnly) {
-    console.error(`[server native] ${status.message}`)
+    console.error(`[node native] ${status.message}`)
     process.exit(1)
   }
 
-  console.error(`[server native] ${status.message}`)
-  console.error('[server native] Rebuilding better-sqlite3 for the current system Node.js...')
-  runRebuild()
+  console.error(`[node native] ${status.message}`)
+  console.error('[node native] Rebuilding better-sqlite3 for the current system Node.js...')
+  runRebuild(nativeDir)
 
   const rebuilt = getNativeStatus(nativePath)
   if (!rebuilt.ok) {
-    console.error(`[server native] Rebuild completed, but native binding is still unusable: ${rebuilt.message}`)
+    console.error(`[node native] Rebuild completed, but native binding is still unusable: ${rebuilt.message}`)
     process.exit(1)
   }
 
-  console.error(`[server native] better-sqlite3 ready (Node ABI ${rebuilt.abi})`)
+  console.error(`[node native] better-sqlite3 ready (Node ABI ${rebuilt.abi})`)
 }
 
 if (process.argv[1] && currentFile === resolve(process.argv[1])) {

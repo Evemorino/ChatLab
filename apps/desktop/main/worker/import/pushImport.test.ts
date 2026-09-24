@@ -12,7 +12,7 @@ import {
 import { initDbDir } from '../core/dbCore'
 import { analyzePushImport, pushImport } from './pushImport'
 
-const nativeBinding = path.resolve('apps/cli/native/better_sqlite3.node')
+const nativeBinding = path.resolve('native/better_sqlite3.node')
 
 test('Desktop worker push analysis uses shared semantics without creating a database', async (t) => {
   const baseDir = process.env.CHATLAB_TEST_TMPDIR ?? (fs.existsSync('/private/tmp') ? '/private/tmp' : os.tmpdir())

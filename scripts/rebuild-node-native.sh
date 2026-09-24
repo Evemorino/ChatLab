@@ -4,13 +4,17 @@
 # 避免与 electron-rebuild 产生冲突。
 #
 # 优先下载官方 Node ABI 预编译包（秒级），无可用预编译时回退源码编译。
-# 产物：apps/cli/native/better_sqlite3.node
+# 产物：<target>/better_sqlite3.node，target 默认仓库根 native/
 #
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SERVER_DIR="$(dirname "$SCRIPT_DIR")"
-TARGET_DIR="$SERVER_DIR/native"
+REPO_ROOT="$(dirname "$SCRIPT_DIR")"
+TARGET_ARG="${1:-native}"
+case "$TARGET_ARG" in
+  /*) TARGET_DIR="$TARGET_ARG" ;;
+  *) TARGET_DIR="$REPO_ROOT/$TARGET_ARG" ;;
+esac
 
 # 获取当前 workspace 中 better-sqlite3 的版本
 BS3_VERSION=$(node -e "const p = require('better-sqlite3/package.json'); console.log(p.version)")

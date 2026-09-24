@@ -8,7 +8,7 @@ import { BetterSqliteAdapter } from '../../better-sqlite3-adapter'
 import type { SessionRuntimeAdapter } from '../adapters'
 import { computeAnnualSummarySnapshot } from './compute'
 
-const nativeBinding = path.resolve('apps/cli/native/better_sqlite3.node')
+const nativeBinding = path.resolve('native/better_sqlite3.node')
 
 test('computes a snapshot across sessions and reuses versioned facts', (t) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'chatlab-global-insight-compute-'))

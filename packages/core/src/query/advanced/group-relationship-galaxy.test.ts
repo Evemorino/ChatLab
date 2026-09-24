@@ -5,7 +5,7 @@ import Database from 'better-sqlite3'
 import type { DatabaseAdapter, PreparedStatement, RunResult } from '../../interfaces'
 import { getGroupRelationshipGalaxy } from './group-relationship-galaxy'
 
-const nativeBinding = path.resolve('apps/cli/native/better_sqlite3.node')
+const nativeBinding = path.resolve('native/better_sqlite3.node')
 
 class Statement implements PreparedStatement {
   readonly?: boolean

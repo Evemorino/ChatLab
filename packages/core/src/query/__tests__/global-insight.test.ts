@@ -7,7 +7,7 @@ import type { DatabaseAdapter, PreparedStatement, RunResult } from '../../interf
 import type { AnnualSummarySessionFacts } from '../global-insight'
 import { aggregateAnnualSummaryFacts, getAnnualSummarySessionFacts } from '../global-insight'
 
-const nativeBinding = path.resolve('apps/cli/native/better_sqlite3.node')
+const nativeBinding = path.resolve('native/better_sqlite3.node')
 
 class StatementAdapter implements PreparedStatement {
   readonly?: boolean

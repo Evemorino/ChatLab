@@ -10,7 +10,7 @@ import { DataDirCompatibilityError, readDataDirCompatibilityMeta } from './data-
 import { DatabaseManager, listDatabaseCandidateIds } from './database-manager'
 import { ChatTopicStore, getChatTopicsDbPath } from './services/topics'
 
-const nativeBinding = path.resolve('apps/cli/native/better_sqlite3.node')
+const nativeBinding = path.resolve('native/better_sqlite3.node')
 
 function makeTempDir(): string {
   const baseDir = process.env.CHATLAB_TEST_TMPDIR ?? (fs.existsSync('/private/tmp') ? '/private/tmp' : os.tmpdir())
