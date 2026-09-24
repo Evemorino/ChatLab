@@ -8,14 +8,14 @@ import { createVueUiHostContext } from './vue-ui-host'
 import { NavigationLayoutController } from '@/navigation/layout'
 
 const platform = PLATFORM_CAPABILITIES.platform
-export const desktopCliWebInsightBuiltins = [annualSummaryBuiltin, timeInvestmentBuiltin] as const
-export const desktopCliWebUiServices = new UiServiceRegistry()
-export const desktopCliWebUiHost = createVueUiHostContext({ services: desktopCliWebUiServices })
-export const desktopCliWebInsightRuntime = createStaticInsightPluginRuntime(
+export const desktopInsightBuiltins = [annualSummaryBuiltin, timeInvestmentBuiltin] as const
+export const desktopUiServices = new UiServiceRegistry()
+export const desktopUiHost = createVueUiHostContext({ services: desktopUiServices })
+export const desktopInsightRuntime = createStaticInsightPluginRuntime(
   platform,
-  desktopCliWebUiHost,
-  desktopCliWebUiHost.locale,
-  desktopCliWebInsightBuiltins,
+  desktopUiHost,
+  desktopUiHost.locale,
+  desktopInsightBuiltins,
   getLegacyInsightPages(platform)
 )
-export const desktopCliWebNavigationLayout = new NavigationLayoutController(desktopCliWebInsightRuntime)
+export const desktopNavigationLayout = new NavigationLayoutController(desktopInsightRuntime)

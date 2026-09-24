@@ -5,7 +5,7 @@ import { timeInvestmentLocaleMessages } from './locales'
 
 export const timeInvestmentPlugin: InsightPlugin = {
   id: TIME_INVESTMENT_PLUGIN_ID,
-  platforms: ['electron', 'cli-web'],
+  platforms: ['electron'],
   activate(context) {
     context.locale.register(TIME_INVESTMENT_LOCALE_NAMESPACE, timeInvestmentLocaleMessages)
     context.pages.register({

@@ -19,7 +19,6 @@ export interface ProgressiveInitializationPorts<TPresentation> {
   loadPresentation(): Promise<TPresentation>
   applyPresentation(presentation: TPresentation): Promise<void> | void
   applyPresentationFallback(): Promise<void> | void
-  deferAfterPresentationError?: (error: unknown) => boolean
   initializeShell?: () => Promise<void>
   initializeBackground: Array<{
     name: string
@@ -38,7 +37,6 @@ export interface ProgressiveInitializationResult {
   presentationError: unknown | null
   background: Promise<BackgroundInitializationFailure[]>
   stopListeningForPullResults: (() => void) | null
-  deferred: boolean
 }
 
 class PresentationTimeoutError extends Error {
@@ -77,16 +75,6 @@ export async function initializeProgressiveAppRuntime<TPresentation>(
     await ports.applyPresentation(presentation)
   } catch (error) {
     presentationError = error
-    // 认证等可恢复门禁失败时，不能启动会写入一次性状态的后台任务；
-    // 调用方完成外部恢复后，应重新执行整条初始化链路。
-    if (ports.deferAfterPresentationError?.(error)) {
-      return {
-        presentationError,
-        background: Promise.resolve([]),
-        stopListeningForPullResults: null,
-        deferred: true,
-      }
-    }
     await ports.applyPresentationFallback()
   }
 
@@ -98,7 +86,7 @@ export async function initializeProgressiveAppRuntime<TPresentation>(
     )
   )
 
-  return { presentationError, background, stopListeningForPullResults, deferred: false }
+  return { presentationError, background, stopListeningForPullResults }
 }
 
 export async function initializeAppRuntime(ports: AppInitializationPorts): Promise<AppInitializationResult> {

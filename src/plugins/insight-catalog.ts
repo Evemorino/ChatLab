@@ -15,7 +15,7 @@ export const LEGACY_INSIGHT_PAGES: readonly LegacyInsightPage[] = [
     routeName: 'insight-relationship-changes',
     title: { key: 'insight.tabs.relationshipChanges' },
     icon: 'i-lucide-git-compare-arrows',
-    platforms: ['electron', 'cli-web'],
+    platforms: ['electron'],
     order: 30,
   },
 ]

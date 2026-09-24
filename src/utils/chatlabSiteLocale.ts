@@ -1,5 +1,3 @@
-import { IS_ELECTRON } from './platform'
-
 const LOCALE_PATH_MAP: Record<string, string> = {
   'en-US': 'en',
   'zh-CN': 'cn',
@@ -7,17 +5,7 @@ const LOCALE_PATH_MAP: Record<string, string> = {
   'ja-JP': 'ja',
 }
 
-/**
- * chatlab.fun 的基础 URL。
- * Electron 直接访问远程；CLI Web 通过 Vite dev proxy 避免 CORS。
- */
-export function resolveChatlabSiteBase(flags: { isElectron: boolean }): string {
-  return flags.isElectron ? 'https://chatlab.fun' : '/_proxy/chatlab.fun'
-}
-
-export const CHATLAB_SITE_BASE = resolveChatlabSiteBase({
-  isElectron: IS_ELECTRON,
-})
+export const CHATLAB_SITE_BASE = 'https://chatlab.fun'
 
 /**
  * 将应用 locale 转为 chatlab.fun 站点的路径前缀。

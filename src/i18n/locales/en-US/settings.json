@@ -413,7 +413,6 @@
     "checking": "Checking...",
     "upToDate": "You are up to date",
     "newVersionAvailable": "New version {version} available",
-    "webUpdateHint": "Run clb update in your terminal, then restart the service.",
     "updateCheckFailed": "Update check failed: {error}",
     "unknown": "Unknown",
     "privacy": {

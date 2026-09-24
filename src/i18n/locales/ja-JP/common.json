@@ -14,7 +14,6 @@
   "retry": "リトライ",
   "initFailed": "アプリの初期化に失敗しました",
   "presentationFallback": "表示設定を時間内に読み込めなかったため、このセッションではシステムテーマと組み込み言語を使用します。",
-  "webWasmWorkspaceBusy": "ローカルワークスペースは一時的に別のタブで使用されています。しばらく待ってから再試行してください。",
   "loading": "読み込み中...",
   "initializing": "初期化中...",
   "noResults": "結果が見つかりません",
@@ -121,20 +120,5 @@
   "memberSearchSelect": {
     "placeholder": "メンバーを検索",
     "noSecondary": "他の名前はありません"
-  },
-  "login": {
-    "description": "このサービスは認証が必要です。API Tokenを入力してください。",
-    "tokenLabel": "API Token",
-    "tokenPlaceholder": "clb_xxxxxxxx",
-    "submit": "ログイン",
-    "hint": "Tokenは起動ログ、config.toml、または --token フラグで確認できます",
-    "errorEmpty": "Tokenを入力してください",
-    "errorInvalid": "無効なTokenです。確認してもう一度お試しください",
-    "errorNetwork": "ネットワーク接続に失敗しました",
-    "rememberDevice": "このデバイスを記憶する",
-    "rememberWarning": "信頼できるデバイスでのみ使用してください。Tokenがブラウザに保存されます",
-    "logoutTitle": "アカウント",
-    "logoutDesc": "現在のセッションからログアウト",
-    "logout": "ログアウト"
   }
 }

@@ -413,7 +413,6 @@
     "checking": "確認中...",
     "upToDate": "最新バージョンです",
     "newVersionAvailable": "新しいバージョン {version} があります",
-    "webUpdateHint": "ターミナルで clb update を実行し、サービスを再起動してください。",
     "updateCheckFailed": "更新確認に失敗しました：{error}",
     "unknown": "不明",
     "privacy": {

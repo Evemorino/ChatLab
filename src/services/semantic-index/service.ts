@@ -1,7 +1,7 @@
 /**
  * useSemanticIndexService — 语义索引前端服务
  *
- * 直连共享 Web 路由 /_web/ai/semantic-index/*（Electron Internal API 与 CLI Web 复用）。
+ * 直连共享 Web 路由 /_web/ai/semantic-index/*（由 Electron 内部 API 提供）。
  * 入参以 sessionId 暴露，不涉及 db_path_hash。
  */
 

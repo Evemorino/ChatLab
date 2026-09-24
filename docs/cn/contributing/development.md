@@ -28,13 +28,11 @@ pnpm install
 
 | 命令                      | 用途                                                                          |
 | ------------------------- | ----------------------------------------------------------------------------- |
-| `pnpm dev`                | 交互式选择 Desktop、CLI Web、CLI Web 的 API Server 或文档站开发目标           |
-| `pnpm dev:desktop`        | 启动 Electron 桌面端开发模式                                                  |
-| `pnpm dev:cli-web`        | 启动 CLI Web（Node 后端 + Web UI）开发模式，默认访问 `http://127.0.0.1:3100/` |
-| `pnpm docs:dev`           | 启动公开文档站开发模式                                                        |
-| `pnpm build:desktop`      | 构建桌面端                                                                    |
-| `pnpm build:cli-web`      | 构建 CLI Web UI                                                               |
-| `pnpm docs:build`         | 构建公开文档站                                                                |
+| `pnpm dev`                | 交互式选择 Desktop 或文档站开发目标                                             |
+| `pnpm dev:desktop`        | 启动 Electron 桌面端开发模式                                                    |
+| `pnpm docs:dev`           | 启动公开文档站开发模式                                                          |
+| `pnpm build:desktop`      | 构建桌面端                                                                      |
+| `pnpm docs:build`         | 构建公开文档站                                                                  |
 | `pnpm run type-check:all` | 运行前端和 Node 侧类型检查                                                    |
 | `pnpm lint`               | 运行 ESLint 并自动修复                                                        |
 | `pnpm format`             | 运行 Prettier 格式化                                                          |
@@ -43,17 +41,17 @@ pnpm install
 
 ## 平台术语
 
-- **CLI Web**：由 `clb web` 运行，包含 Node.js 后端和 Web UI。
-- “后端”或“API Server”只指 Node.js 进程，不等于完整的 CLI Web。
+- **Desktop**：Electron 桌面端，本 fork 唯一的图形运行时，渲染进程通过主进程的内部 HTTP 服务访问业务逻辑。
+- **CLI**：`clb` 命令行，提供导入、查询和校验能力。本 fork 已下线 CLI Web（浏览器版 UI 与常驻 HTTP 服务）。
 
 ## 目录职责
 
 | 路径                     | 职责                                                    |
 | ------------------------ | ------------------------------------------------------- |
 | `src/`                   | 共享前端应用代码，包含页面、组件、服务封装、状态和 i18n |
-| `src/services/`          | 前端访问 Electron、CLI Web API 和平台能力的服务层       |
+| `src/services/`          | 前端访问 Electron 内部 API 和平台能力的服务层       |
 | `apps/desktop/`          | Electron 主进程、preload 和桌面端构建配置               |
-| `apps/cli/`              | CLI、HTTP API、CLI Web 运行时和导入命令                 |
+| `apps/cli/`              | CLI 子命令、导入和查询命令                          |
 | `packages/core/`         | 平台无关的核心数据模型、查询、导入和成员操作            |
 | `packages/node-runtime/` | Node.js 运行时服务、数据库、AI、导出、缓存和迁移        |
 | `packages/tools/`        | 统一 AI 工具定义和数据访问适配                          |
@@ -63,7 +61,7 @@ pnpm install
 
 ## 架构边界
 
-ChatLab 同时维护 Electron 桌面端和 CLI Web。涉及共享业务逻辑时，优先把逻辑放到 `packages/node-runtime/src/services/` 或 `packages/core/`，入口层只做薄适配。
+ChatLab 的图形运行时只有 Electron 桌面端，CLI 和 MCP 复用同一套 Node 侧服务。涉及共享业务逻辑时，优先把逻辑放到 `packages/node-runtime/src/services/` 或 `packages/core/`，入口层只做薄适配。
 
 - 不要在 Electron IPC handler 或 CLI HTTP route 中重复实现复杂业务流程。
 - 不要在入口层绕过 `packages/core/` 直接写成员合并、删除、别名更新等核心 SQL 写操作。
@@ -72,7 +70,7 @@ ChatLab 同时维护 Electron 桌面端和 CLI Web。涉及共享业务逻辑时
 
 ## 数据目录兼容门禁
 
-Electron 桌面端、CLI Web 和 MCP 会共享同一个 `userDataDir`。如果某个新版 runtime 修改了数据库 schema、AI 数据、认证配置或数据目录布局，旧 runtime 继续读写同一目录可能会读错数据或破坏用户数据。因此，凡是会让旧版本无法安全访问同一数据目录的变更，都必须使用数据目录兼容门禁。
+Electron 桌面端、CLI 和 MCP 会共享同一个 `userDataDir`。如果某个新版 runtime 修改了数据库 schema、AI 数据、认证配置或数据目录布局，旧 runtime 继续读写同一目录可能会读错数据或破坏用户数据。因此，凡是会让旧版本无法安全访问同一数据目录的变更，都必须使用数据目录兼容门禁。
 
 兼容标记文件位于：
 
@@ -141,7 +139,7 @@ CHATLAB_ALLOW_INCOMPATIBLE_DATA_DIR=1
 
 - 修改 TypeScript 或 Vue 代码后，至少运行相关类型检查。
 - 修改公开文档或 VitePress 配置后，运行 `pnpm docs:build`，并格式化修改文件；`docs/**/*.md` 被 Prettier 默认忽略，定向格式化时使用 `pnpm exec prettier --write --ignore-path .gitignore <files...>`。
-- 修改跨平台共享逻辑后，确认 Electron 和 CLI Web 两端入口没有产生行为分歧。
+- 修改跨端共享逻辑后，确认 Electron 内部 API 与 CLI、MCP 入口没有产生行为分歧。
 - 修复会影响用户数据、业务逻辑、异步任务、缓存状态、跨端共享 service、公开 API 契约、导入解析、去重逻辑、权限认证、AI 工具 allowlist、配置/API key 迁移或数据库 schema/迁移的行为 bug 时，必须优先补能失败的回归测试。
 - 只改 UI 文案、i18n key/翻译、样式、类型声明、日志、注释、无行为变化的小重构，或修复低风险展示细节时，可以不新增测试，但仍需运行相关类型检查、lint 和 format；不要为了低价值页面文案或源码字符串扫描新增脆弱测试。
 - 日常默认运行 `pnpm test`；需要优先验证相关文件时运行 `pnpm test -- path/to/file.test.ts`。

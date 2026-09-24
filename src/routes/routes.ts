@@ -1,5 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router'
-import { desktopCliWebInsightRuntime } from '@/plugins/desktop-cli-web'
+import { desktopInsightRuntime } from '@/plugins/desktop'
 import type { InsightPluginRuntime } from '@/plugins/insight'
 import { listInsightShellPages } from '@/plugins/insight-catalog'
 import { createVueInsightRouteRecords } from '@/plugins/insight-vue'
@@ -9,17 +9,11 @@ export function shouldPreloadCriticalRoutes(isProduction: boolean): boolean {
   return isProduction
 }
 
-export function createAppRoutes(insightRuntime: InsightPluginRuntime = desktopCliWebInsightRuntime): RouteRecordRaw[] {
+export function createAppRoutes(insightRuntime: InsightPluginRuntime = desktopInsightRuntime): RouteRecordRaw[] {
   const defaultInsightRoute =
     insightRuntime.getDefaultPage()?.routeName ?? listInsightShellPages(insightRuntime)[0]?.routeName
 
   return [
-    {
-      path: '/login',
-      name: 'login',
-      component: () => import('@/pages/login/index.vue'),
-      meta: { public: true },
-    },
     {
       path: '/',
       name: 'home',

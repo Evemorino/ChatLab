@@ -1,7 +1,7 @@
 /**
  * FetchDataAdapter — 通过 HTTP 调用 /_web/ 内部 API
  *
- * 用于 CLI Web 场景：前端通过 fetch 访问 clb web 后端。
+ * 桌面端渲染进程访问的是主进程监听在 127.0.0.1 随机端口上的内部服务。
  */
 
 import type { AnalysisSession, MessageType } from '@/types/base'

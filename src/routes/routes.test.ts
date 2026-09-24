@@ -62,11 +62,11 @@ test('removes optional plugin routes and falls back to the remaining Insight pag
     services: new UiServiceRegistry(),
   }
   const runtimeWithoutPlugins = createInsightPluginRuntime(
-    'cli-web',
+    'electron',
     uiHost,
     localeHost,
     [],
-    getLegacyInsightPages('cli-web')
+    getLegacyInsightPages('electron')
   )
   const routesWithoutPlugins = createAppRoutes(runtimeWithoutPlugins)
   const insightRoute = routesWithoutPlugins.find((route) => route.path === '/insight')

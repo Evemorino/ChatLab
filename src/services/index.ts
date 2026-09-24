@@ -5,7 +5,7 @@
  * 各 Phase 实施时在此追加导出。
  */
 
-export { initServices, detectPlatform, type Platform } from './registry'
+export { initServices } from './registry'
 
 export { useDataService } from './data/service'
 export type { DataAdapter } from './data/types'

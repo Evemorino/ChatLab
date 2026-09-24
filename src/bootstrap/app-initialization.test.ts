@@ -8,9 +8,7 @@ test('keeps the backend-backed application initialization sequence', async () =>
 
   const result = await initializeAppRuntime({
     capabilities: {
-      platform: 'cli-web',
-      requiresAuth: true,
-      usesCliWebHttp: true,
+      platform: 'electron',
       loadsPreferences: true,
       initializesLlm: true,
       listensForPullResults: true,
@@ -70,7 +68,6 @@ test('reveals the shell after presentation state and runs independent startup wo
   ])
   assert.equal(result.presentationError, null)
   assert.equal(result.stopListeningForPullResults, stop)
-  assert.equal(result.deferred, false)
 
   releaseTasks.forEach((release) => release())
   assert.deepEqual(await result.background, [])
@@ -96,49 +93,5 @@ test('uses the presentation fallback on timeout and reports background failures 
 
   assert.match(String(result.presentationError), /timed out after 5ms/)
   assert.equal(applyLatePresentation, false)
-  assert.equal(result.deferred, false)
   assert.deepEqual(await result.background, [{ name: 'sessions', error: failure }])
-})
-
-test('defers one-shot background work until authentication can recover presentation loading', async () => {
-  const calls: string[] = []
-  let authenticated = false
-
-  const initialize = () =>
-    initializeProgressiveAppRuntime({
-      initializeServices: async () => void calls.push('services'),
-      loadPresentation: async () => {
-        calls.push('presentation')
-        if (!authenticated) throw new Error('HTTP 401')
-        return { locale: 'zh-CN' }
-      },
-      applyPresentation: () => void calls.push('apply-presentation'),
-      applyPresentationFallback: () => void calls.push('fallback'),
-      deferAfterPresentationError: () => !authenticated,
-      initializeBackground: [
-        { name: 'preferences', run: async () => void calls.push('preferences') },
-        { name: 'llm', run: async () => void calls.push('llm') },
-        { name: 'sessions', run: async () => void calls.push('sessions') },
-      ],
-    })
-
-  const deferred = await initialize()
-  assert.equal(deferred.deferred, true)
-  assert.deepEqual(await deferred.background, [])
-  assert.deepEqual(calls, ['services', 'presentation'])
-
-  authenticated = true
-  const recovered = await initialize()
-  assert.equal(recovered.deferred, false)
-  assert.deepEqual(await recovered.background, [])
-  assert.deepEqual(calls, [
-    'services',
-    'presentation',
-    'services',
-    'presentation',
-    'apply-presentation',
-    'preferences',
-    'llm',
-    'sessions',
-  ])
 })

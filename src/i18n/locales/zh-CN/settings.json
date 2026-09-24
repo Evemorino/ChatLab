@@ -413,7 +413,6 @@
     "checking": "检查中...",
     "upToDate": "已是最新版本",
     "newVersionAvailable": "发现新版本 {version}",
-    "webUpdateHint": "请在终端运行 clb update 后重启服务。",
     "updateCheckFailed": "检查更新失败：{error}",
     "unknown": "未知",
     "privacy": {

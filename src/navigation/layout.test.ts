@@ -25,7 +25,7 @@ function createRuntime() {
   const ui: UiHostContext = { locale, insightScope: new InsightScopeController(), services: new UiServiceRegistry() }
   const plugin = (id: string, pageId: string, order: number): InsightPlugin => ({
     id,
-    platforms: ['cli-web'],
+    platforms: ['electron'],
     activate(context) {
       context.locale.register(`plugins.${id}`, {
         'en-US': { title: pageId },
@@ -44,7 +44,7 @@ function createRuntime() {
       context.navigation.register({ id: `entry.${pageId}`, pageId, order })
     },
   })
-  return createInsightPluginRuntime('cli-web', ui, locale, [
+  return createInsightPluginRuntime('electron', ui, locale, [
     plugin('first', 'first', 10),
     plugin('second', 'second', 20),
   ])

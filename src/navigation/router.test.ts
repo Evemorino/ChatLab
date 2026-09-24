@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import type { NavigationLayout } from '@openchatlab/shared-types'
-import { desktopCliWebNavigationLayout } from '@/plugins/desktop-cli-web'
+import { desktopNavigationLayout } from '@/plugins/desktop'
 import { redirectFromHiddenInsightPage } from './router'
 
 const entryIds = {
@@ -12,7 +12,7 @@ const entryIds = {
 } as const
 
 test('redirects a hidden current Insight page to the first visible entry and falls back home when all are hidden', async (t) => {
-  t.after(() => desktopCliWebNavigationLayout.applyDefaultLayout())
+  t.after(() => desktopNavigationLayout.applyDefaultLayout())
   const view = { template: '<div />' }
   const router = createRouter({
     history: createMemoryHistory(),
@@ -39,8 +39,8 @@ test('redirects a hidden current Insight page to the first visible entry and fal
     primary: [{ kind: 'entry', entryId: entryIds.timeInvestment }],
     hiddenEntryIds: [entryIds.annualSummary, entryIds.relationshipChanges],
   }
-  desktopCliWebNavigationLayout.applySavedLayout(timeInvestmentOnly)
-  await redirectFromHiddenInsightPage(router, desktopCliWebNavigationLayout)
+  desktopNavigationLayout.applySavedLayout(timeInvestmentOnly)
+  await redirectFromHiddenInsightPage(router, desktopNavigationLayout)
   assert.equal(router.currentRoute.value.name, 'insight-time-investment')
 
   const allHidden: NavigationLayout = {
@@ -48,7 +48,7 @@ test('redirects a hidden current Insight page to the first visible entry and fal
     primary: [],
     hiddenEntryIds: Object.values(entryIds),
   }
-  desktopCliWebNavigationLayout.applySavedLayout(allHidden)
-  await redirectFromHiddenInsightPage(router, desktopCliWebNavigationLayout)
+  desktopNavigationLayout.applySavedLayout(allHidden)
+  await redirectFromHiddenInsightPage(router, desktopNavigationLayout)
   assert.equal(router.currentRoute.value.name, 'home')
 })

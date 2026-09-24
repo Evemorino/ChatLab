@@ -6,17 +6,7 @@ import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { CHATLAB_TEMP_ROOT_ENV, getChatLabTempScopeDir } from './chatlab-temp.mjs'
 
-const SKIP_DIRS = new Set([
-  '.git',
-  '.docs',
-  'node_modules',
-  'dist',
-  'dist-cli-web',
-  'out',
-  'build',
-  'coverage',
-  '.vitepress',
-])
+const SKIP_DIRS = new Set(['.git', '.docs', 'node_modules', 'dist', 'out', 'build', 'coverage', '.vitepress'])
 
 const TEST_FILE_RE = /\.(?:test|spec)\.(?:ts|tsx|js|jsx|mjs|mts|cjs|cts)$/
 const SUPPORTED_NODE_MAJOR = 24
