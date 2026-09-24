@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
  * Run electron-builder, then always restore the shared better-sqlite3 binding
- * to the Node ABI — even when packaging fails — so a local `pnpm build:mac` /
- * `pnpm build:win` never leaves `pnpm test` broken.
+ * to the Node ABI — even when packaging fails — so a local `pnpm build:mac`
+ * never leaves `pnpm test` broken.
  *
  * Usage: node scripts/build-app.mjs --mac [extra electron-builder args]
  */

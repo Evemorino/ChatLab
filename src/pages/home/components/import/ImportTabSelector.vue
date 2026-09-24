@@ -3,19 +3,18 @@ import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
-  modelValue: 'file' | 'api' | 'cli'
+  modelValue: 'file' | 'api'
 }>()
 
 const emit = defineEmits<{
-  'update:modelValue': [value: 'file' | 'api' | 'cli']
+  'update:modelValue': [value: 'file' | 'api']
 }>()
 
 const { t } = useI18n()
 
-// 定义切换栏的三个固定选项
+// 定义切换栏的两个固定选项
 const tabs = [
   { id: 'file', labelKey: 'home.tabs.file' },
-  { id: 'cli', labelKey: 'home.tabs.cli' },
   { id: 'api', labelKey: 'home.tabs.api' },
 ] as const
 
@@ -88,7 +87,7 @@ onUnmounted(() => {
         :style="ringStyle"
       ></div>
 
-      <!-- 三个固定切换按钮 -->
+      <!-- 两个固定切换按钮 -->
       <button
         v-for="(tab, index) in tabs"
         :key="tab.id"

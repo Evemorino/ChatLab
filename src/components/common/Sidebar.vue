@@ -778,14 +778,8 @@ function getAvatarColorClass(session: AnalysisSession, isActive: boolean) {
             {{ t('layout.updateNotice.message', { version: latestVersion }) }}
           </p>
           <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            {{ IS_ELECTRON ? t('layout.updateNotice.desktopHint') : t('layout.updateNotice.cliHint') }}
+            {{ t('layout.updateNotice.desktopHint') }}
           </p>
-          <div
-            v-if="!IS_ELECTRON"
-            class="mt-3 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 font-mono text-xs text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
-          >
-            clb update
-          </div>
           <div class="mt-4 flex justify-end gap-2">
             <UButton variant="soft" :disabled="isStartingUpdate" @click="showUpdateModal = false">
               {{ t('layout.updateNotice.later') }}

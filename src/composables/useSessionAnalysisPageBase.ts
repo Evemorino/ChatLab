@@ -126,7 +126,7 @@ export function useSessionAnalysisPageBase(options: UseSessionAnalysisPageBaseOp
         adapter.getMessageTypeDistribution(sessionId, filter),
       ])
 
-      // Browser Runtime 查询无法被 HTTP epoch 取消，旧批次完成时不得覆盖最新筛选结果。
+      // 筛选变化后旧批次仍可能晚于新批次返回，不得覆盖最新结果。
       if (loadVersion !== analysisLoadVersion) return
       memberActivity.value = members
       hourlyActivity.value = hourly

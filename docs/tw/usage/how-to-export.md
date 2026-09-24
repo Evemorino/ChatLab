@@ -86,7 +86,7 @@ Tips：歡迎訪問 [加入社群](https://chatlab.fun/tw/other/community)，討
 
 ChatLab 的功能是 **對已匯出的固定文本格式的聊天記錄進行分析**，但前提是**您已經透過合法合規的管道匯出了聊天記錄**。
 
-如果您有一定的技術基礎，可以嘗試使用 **AI 輔助轉換** 的方式，將您的數據轉換為標準格式。詳情請查看 [AI 輔助轉換指南](/tw/standard/ai-converter)。
+如果您有一定的技術基礎，可以嘗試自行將數據轉換為標準格式。詳情請查看 [ChatLab Format 規範](/tw/standard/chatlab-format)。
 
 此外，如果您是開發者，並已支援了其他聊天應用的聊天記錄匯出，歡迎[相容 ChatLab 格式](/tw/standard/chatlab-format)，我會將您的 Github 連結加到這裡。
 

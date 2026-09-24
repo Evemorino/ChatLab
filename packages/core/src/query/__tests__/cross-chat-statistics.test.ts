@@ -6,7 +6,7 @@ import { MessageType } from '@openchatlab/shared-types'
 import type { DatabaseAdapter, PreparedStatement, RunResult } from '../../interfaces'
 import { getCrossChatSessionActivityFacts } from '../cross-chat-statistics'
 
-const nativeBinding = path.resolve('apps/cli/native/better_sqlite3.node')
+const nativeBinding = path.resolve('native/better_sqlite3.node')
 
 class StatementAdapter implements PreparedStatement {
   readonly?: boolean

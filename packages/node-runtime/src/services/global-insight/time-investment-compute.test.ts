@@ -8,7 +8,7 @@ import { BetterSqliteAdapter } from '../../better-sqlite3-adapter'
 import type { SessionRuntimeAdapter } from '../adapters'
 import { computeTimeInvestmentSnapshot } from './time-investment-compute'
 
-const nativeBinding = path.resolve('apps/cli/native/better_sqlite3.node')
+const nativeBinding = path.resolve('native/better_sqlite3.node')
 
 test('computes time investment across sessions and reuses versioned facts', (t) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'chatlab-time-investment-compute-'))

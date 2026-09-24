@@ -122,9 +122,9 @@ Token 可在 设置 → ChatLab API 页面查看和重新生成。
 
 ### 数据导入
 
-| 方法 | 路径                                 | 说明                                                     | 文档                             |
-| ---- | ------------------------------------ | -------------------------------------------------------- | -------------------------------- |
-| POST | `/api/v1/imports/:sessionId`         | 导入消息到指定会话（首次自动创建，后续追加）             | [Push 导入协议](./chatlab-import.md) |
+| 方法 | 路径 | 说明 | 文档 |
+| --- | --- | --- | --- |
+| POST | `/api/v1/imports/:sessionId` | 导入消息到指定会话（首次自动创建，后续追加） | [Push 导入协议](./chatlab-import.md) |
 
 ---
 
@@ -224,14 +224,14 @@ Token 可在 设置 → ChatLab API 页面查看和重新生成。
 
 **查询参数：**
 
-| 参数        | 类型   | 默认值 | 说明                     |
-| ----------- | ------ | ------ | ------------------------ |
-| `page`      | number | 1      | 页码                     |
-| `limit`     | number | 100    | 每页条数（最大 1000）    |
-| `startTime` | number | -      | 起始时间戳（秒级 Unix）  |
-| `endTime`   | number | -      | 结束时间戳（秒级 Unix）  |
-| `keyword`   | string | -      | 关键词搜索               |
-| `senderId`  | string | -      | 按发送者 ID 筛选         |
+| 参数        | 类型   | 默认值 | 说明                    |
+| ----------- | ------ | ------ | ----------------------- |
+| `page`      | number | 1      | 页码                    |
+| `limit`     | number | 100    | 每页条数（最大 1000）   |
+| `startTime` | number | -      | 起始时间戳（秒级 Unix） |
+| `endTime`   | number | -      | 结束时间戳（秒级 Unix） |
+| `keyword`   | string | -      | 关键词搜索              |
+| `senderId`  | string | -      | 按发送者 ID 筛选        |
 
 **请求示例：**
 
@@ -342,9 +342,7 @@ curl "http://127.0.0.1:3110/api/v1/sessions/abc123/messages?page=1&limit=50&keyw
 }
 ```
 
-::: tip 提示
-使用 `SELECT * FROM sqlite_master WHERE type='table'` 查询可用的数据库表结构。
-:::
+::: tip 提示使用 `SELECT * FROM sqlite_master WHERE type='table'` 查询可用的数据库表结构。:::
 
 ---
 
@@ -397,13 +395,13 @@ curl "http://127.0.0.1:3110/api/v1/sessions/abc123/messages?page=1&limit=50&keyw
 | `UNAUTHORIZED`           | 401         | Token 无效或缺失                    |
 | `SESSION_NOT_FOUND`      | 404         | 会话不存在                          |
 | `INVALID_FORMAT`         | 400         | Content-Type 不支持或请求体格式错误 |
-| `INVALID_PAYLOAD`        | 400         | 必填字段缺失、类型错误或校验失败   |
+| `INVALID_PAYLOAD`        | 400         | 必填字段缺失、类型错误或校验失败    |
 | `SQL_READONLY_VIOLATION` | 400         | SQL 不是 SELECT 语句                |
 | `SQL_EXECUTION_ERROR`    | 400         | SQL 执行出错                        |
 | `EXPORT_TOO_LARGE`       | 400         | 消息数超过导出上限（10 万条）       |
 | `BODY_TOO_LARGE`         | 413         | 请求体超过 50MB（仅 JSON 模式）     |
 | `IMPORT_IN_PROGRESS`     | 409         | 有其他导入正在进行                  |
-| `IDEMPOTENCY_CONFLICT`   | 409         | 相同幂等键但请求体不一致           |
+| `IDEMPOTENCY_CONFLICT`   | 409         | 相同幂等键但请求体不一致            |
 | `IMPORT_FAILED`          | 500         | 导入失败                            |
 | `SERVER_ERROR`           | 500         | 服务内部错误                        |
 
@@ -444,8 +442,8 @@ curl "http://127.0.0.1:3110/api/v1/sessions/abc123/messages?page=1&limit=50&keyw
 
 ## 版本信息
 
-| 版本 | 说明                                                                           |
-| ---- | ------------------------------------------------------------------------------ |
+| 版本 | 说明                                                                          |
+| ---- | ----------------------------------------------------------------------------- |
 | v1   | 支持会话查询、消息搜索、SQL、导出、Push 导入（JSON + JSONL）、Pull 远程数据源 |
 
 ---

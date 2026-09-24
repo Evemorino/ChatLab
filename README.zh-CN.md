@@ -30,33 +30,7 @@ ChatLab 是一个专注于聊天记录分析的本地化应用。通过 AI Agent
 
 ### 桌面端
 
-前往[官网](https://chatlab.fun/cn/?type=download)或 [GitHub Releases](https://github.com/ChatLab/ChatLab/releases) 下载对应操作系统的安装包，双击安装即可。
-
-### CLI
-
-需要 Node.js ≥ 20。
-
-```bash
-npm i chatlab-cli -g
-```
-
-启动 ChatLab：
-
-```bash
-clb web            # 启动 API + Web UI，并在浏览器中打开
-clb web --no-open  # 启动 API + Web UI，但不自动打开浏览器
-clb web --headless # 仅启动 API，不挂载 Web UI（供脚本 / AI Agent 调用）
-```
-
-常用选项：`--port <端口>`（默认 3110）、`--host <地址>`、`--token <令牌>`。
-
-如果希望服务常驻后台（开机自启 + 崩溃自动重启）：
-
-```bash
-clb web --daemon   # 注册为系统服务（macOS / Linux）
-clb status           # 查看常驻状态
-clb stop             # 停止并取消常驻
-```
+前往[官网](https://chatlab.fun/cn/?type=download)或 [GitHub Releases](https://github.com/ChatLab/ChatLab/releases) 下载 macOS（Apple 芯片）安装包，双击安装即可。
 
 完整使用说明请见[快速开始指南](https://docs.chatlab.fun/cn/usage/quick-start)。
 
@@ -75,7 +49,7 @@ clb stop             # 停止并取消常驻
 
 ## 架构概览
 
-ChatLab 是一个基于 pnpm monorepo 的工程，桌面端使用 Electron + Vue 3 + Nuxt UI + Tailwind CSS，核心业务逻辑沉淀在共享包（`@openchatlab/core`、`@openchatlab/node-runtime`、`@openchatlab/tools`），桌面端与 CLI 服务端复用同一份逻辑，保持功能同步。
+ChatLab 是一个基于 pnpm monorepo 的工程，桌面端使用 Electron + Vue 3 + Nuxt UI + Tailwind CSS，核心业务逻辑沉淀在共享包（`@openchatlab/core`、`@openchatlab/node-runtime`、`@openchatlab/tools`），由桌面端主进程通过其内部 HTTP 服务统一消费。
 
 数据流分五个阶段：**格式嗅探 → 流式解析 → 本地落盘 → SQL + AI 查询 → 可视化呈现**。
 
@@ -113,9 +87,6 @@ pnpm dev
 
 ```bash
 pnpm dev:desktop   # Electron 桌面端
-pnpm dev:cli-web   # CLI Web 前端 + 本地服务
-pnpm dev:web-wasm  # 纯浏览器 Web WASM
-pnpm dev:serve     # 仅 CLI 服务端
 pnpm docs:dev      # 文档站
 ```
 

@@ -8,7 +8,6 @@ import { filterHomeFooterLinks, resolveHomeFooterConfigSource } from './home-foo
 
 const props = withDefaults(
   defineProps<{
-    remoteConfigEnabled: boolean
     showChangelog?: boolean
   }>(),
   {
@@ -22,9 +21,7 @@ const emit = defineEmits<{
 }>()
 
 const { t, locale } = useI18n()
-const configSource = computed(() =>
-  resolveHomeFooterConfigSource({ remoteConfigEnabled: props.remoteConfigEnabled, isElectron: IS_ELECTRON })
-)
+const configSource = computed(() => resolveHomeFooterConfigSource(IS_ELECTRON))
 
 const configUrl = computed(() => {
   const localePath = getChatlabSiteLocalePath(locale.value)
@@ -148,8 +145,6 @@ async function fetchConfig(): Promise<void> {
   if (cachedSocialData) {
     socialData.value = cachedSocialData
   }
-
-  if (configSource.value === 'cache-only') return
 
   try {
     let config: Record<string, unknown>

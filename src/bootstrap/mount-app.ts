@@ -9,12 +9,12 @@ import { backendPersistPlugin } from '@/plugins/backendPersist'
 import { installGlobalErrorReporting, reportError } from '@/services/log-report'
 import { markStartupPhase } from '@/bootstrap/startup-performance'
 import {
-  desktopCliWebInsightBuiltins,
-  desktopCliWebInsightRuntime,
-  desktopCliWebNavigationLayout,
-  desktopCliWebUiHost,
-  desktopCliWebUiServices,
-} from '@/plugins/desktop-cli-web'
+  desktopInsightBuiltins,
+  desktopInsightRuntime,
+  desktopNavigationLayout,
+  desktopUiHost,
+  desktopUiServices,
+} from '@/plugins/desktop'
 import { installInsightPluginRuntime } from '@/plugins/insight-vue'
 import { installStaticInsightPluginUiServices } from '@/plugins/static-insight'
 import { installNavigationLayout } from '@/navigation/vue'
@@ -43,17 +43,13 @@ export async function mountChatLabApp(options: MountChatLabAppOptions = {}): Pro
   app.use(router)
   app.use(ui)
   app.use(i18n)
-  installNavigationLayout(app, desktopCliWebNavigationLayout)
-  await installStaticInsightPluginUiServices(
-    desktopCliWebInsightBuiltins,
-    desktopCliWebInsightRuntime,
-    desktopCliWebUiServices
-  )
+  installNavigationLayout(app, desktopNavigationLayout)
+  await installStaticInsightPluginUiServices(desktopInsightBuiltins, desktopInsightRuntime, desktopUiServices)
   app.onUnmount(() => {
-    desktopCliWebInsightRuntime.disposeAll()
-    desktopCliWebUiHost.locale.dispose()
+    desktopInsightRuntime.disposeAll()
+    desktopUiHost.locale.dispose()
   })
-  installInsightPluginRuntime(app, desktopCliWebInsightRuntime)
+  installInsightPluginRuntime(app, desktopInsightRuntime)
   markStartupPhase('vue-mount-start')
   app.mount('#app')
   markStartupPhase('vue-mounted')

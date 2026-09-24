@@ -22,16 +22,16 @@ ChatLab 的诞生，就是为了**让每个用户都能安全地分析、回顾�
 
 ChatLab 目前原生支持导入 QQ、WhatsApp、LINE、Discord、Instagram、Telegram 和 iMessage 的聊天记录。按照[导出聊天记录指南](/cn/usage/how-to-export)准备文件后，即可直接导入使用。
 
-如果你使用的平台暂未支持，也可以先导出聊天记录，再使用官方 [AI 辅助转换 Skill](/cn/standard/ai-converter) 将其转换为 ChatLab Format，转换完成后即可正常导入。
+如果你使用的平台暂未支持，也可以先导出聊天记录，再手动转换为 [ChatLab Format](/cn/standard/chatlab-format)，转换完成后即可正常导入。
 
 ## 开始使用
 
 - **[快速开始](/cn/usage/quick-start)**：导入第一份聊天记录并开始使用 ChatLab。
-- **安装与部署**：选择[安装 ChatLab](/cn/usage/installation) 或 [Docker 部署](/cn/usage/docker)。
+- **安装与部署**：选择[安装 ChatLab](/cn/usage/installation)。
 - **使用指南**：查看[导出](/cn/usage/how-to-export)、[导入](/cn/usage/how-to-import)、[故障排查](/cn/usage/troubleshooting)和[常见问题](/cn/usage/faq)。
 
 ## 进一步探索
 
-- **AI 分析**：了解[为什么选择 ChatLab](/cn/ai/why-chatlab)，或使用[内置 AI](/cn/ai/chatlab-ai)和[外部 AI Agent](/cn/ai/external-agent)。
+- **AI 分析**：了解[为什么选择 ChatLab](/cn/ai/why-chatlab)，或使用[内置 AI](/cn/ai/chatlab-ai)，也可通过桌面端的 MCP 设置接入[外部 AI Agent](/cn/standard/chatlab-api)。
 - **对接 ChatLab**：查看 [ChatLab Format](/cn/standard/chatlab-format)、[ChatLab API](/cn/standard/chatlab-api)和 [Push 导入协议](/cn/standard/chatlab-import)。
 - **参与贡献**：阅读[开发指南](/cn/contributing/development)。

@@ -14,7 +14,6 @@
   "retry": "重試",
   "initFailed": "應用程式初始化失敗",
   "presentationFallback": "外觀偏好未能及時載入，本次啟動已使用系統主題和內建語言。",
-  "webWasmWorkspaceBusy": "本機工作區暫時正由另一個分頁使用。請稍候後重試。",
   "loading": "載入中...",
   "initializing": "初始化中...",
   "noResults": "無匹配結果",
@@ -121,20 +120,5 @@
   "memberSearchSelect": {
     "placeholder": "搜尋成員",
     "noSecondary": "無其他名稱"
-  },
-  "login": {
-    "description": "此服務已開啟認證保護，請輸入 API Token 登入",
-    "tokenLabel": "API Token",
-    "tokenPlaceholder": "clb_xxxxxxxx",
-    "submit": "登入",
-    "hint": "Token 可在啟動日誌、config.toml 或 --token 啟動參數中取得",
-    "errorEmpty": "請輸入 Token",
-    "errorInvalid": "Token 無效，請檢查後重試",
-    "errorNetwork": "網路連線失敗",
-    "rememberDevice": "記住此裝置",
-    "rememberWarning": "僅在可信裝置上勾選，Token 將持久保存在瀏覽器中",
-    "logoutTitle": "帳戶",
-    "logoutDesc": "退出目前認證登入",
-    "logout": "登出"
   }
 }

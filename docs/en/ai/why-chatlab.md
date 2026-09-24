@@ -30,6 +30,6 @@ Most questions only require a small, relevant slice of the record.
 ## How to use ChatLab's AI features
 
 - **[Built-in AI](/ai/chatlab-ai):** configure an AI model inside ChatLab and ask questions directly. Best if you want it to work out of the box.
-- **[External AI agent](/ai/external-agent):** install the ChatLab CLI and the official Skill, and let agents like Codex or Claude Code query your chat records. Best if you already use an agent and want to reuse your existing workflow.
+- **External AI agent**: open **Settings → MCP** in the desktop app to generate the connection config, and expose ChatLab's read-only data tools to MCP-capable agents such as Claude Code or Codex. Best if you already use an agent and want to reuse your existing workflow.
 
 Both methods use records already imported into ChatLab, and **both apply desensitization and blacklist filtering by default**.

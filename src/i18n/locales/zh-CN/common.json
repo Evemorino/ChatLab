@@ -14,7 +14,6 @@
   "retry": "重试",
   "initFailed": "应用初始化失败",
   "presentationFallback": "外观偏好未能及时加载，本次启动已使用系统主题和内置语言。",
-  "webWasmWorkspaceBusy": "本地工作区暂时正由另一个标签页使用。请稍候后重试。",
   "loading": "加载中...",
   "initializing": "初始化中...",
   "noResults": "无匹配结果",
@@ -121,20 +120,5 @@
   "memberSearchSelect": {
     "placeholder": "搜索成员",
     "noSecondary": "无其他名称"
-  },
-  "login": {
-    "description": "此服务已开启认证保护，请输入 API Token 登录",
-    "tokenLabel": "API Token",
-    "tokenPlaceholder": "clb_xxxxxxxx",
-    "submit": "登录",
-    "hint": "Token 可在启动日志、config.toml 或 --token 启动参数中获取",
-    "errorEmpty": "请输入 Token",
-    "errorInvalid": "Token 无效，请检查后重试",
-    "errorNetwork": "网络连接失败",
-    "rememberDevice": "记住此设备",
-    "rememberWarning": "仅在可信设备上勾选，Token 将持久保存在浏览器中",
-    "logoutTitle": "账户",
-    "logoutDesc": "退出当前认证登录",
-    "logout": "退出登录"
   }
 }

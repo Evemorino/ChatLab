@@ -19,7 +19,7 @@ import {
 } from '../contact-queries'
 import type { DatabaseAdapter, PreparedStatement, RunResult } from '../../interfaces'
 
-const nativeBinding = path.resolve('apps/cli/native/better_sqlite3.node')
+const nativeBinding = path.resolve('native/better_sqlite3.node')
 const SYSTEM_MESSAGE_TYPE = 80
 
 class Stmt implements PreparedStatement {

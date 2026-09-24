@@ -4,7 +4,7 @@ import { ContributionRegistry, PluginHost, type ChatLabPlugin } from './core'
 
 test('rolls back contributions when plugin activation fails', () => {
   const registry = new ContributionRegistry<{ id: string }>()
-  const host = new PluginHost<{ register(id: string): void }>('cli-web', (pluginId, disposables) => ({
+  const host = new PluginHost<{ register(id: string): void }>('electron', (pluginId, disposables) => ({
     register: (id) => {
       disposables.add(registry.register(pluginId, { id }))
     },
@@ -14,7 +14,7 @@ test('rolls back contributions when plugin activation fails', () => {
     () =>
       host.activate({
         id: 'broken',
-        platforms: ['cli-web'],
+        platforms: ['electron'],
         activate(context) {
           context.register('temporary')
           throw new Error('activation failed')
@@ -28,14 +28,14 @@ test('rolls back contributions when plugin activation fails', () => {
 
 test('rejects duplicate contributions', () => {
   const registry = new ContributionRegistry<{ id: string }>()
-  const host = new PluginHost<{ register(id: string): void }>('cli-web', (pluginId, disposables) => ({
+  const host = new PluginHost<{ register(id: string): void }>('electron', (pluginId, disposables) => ({
     register: (id) => {
       disposables.add(registry.register(pluginId, { id }))
     },
   }))
   const first: ChatLabPlugin<{ register(id: string): void }> = {
     id: 'first',
-    platforms: ['cli-web'],
+    platforms: ['electron'],
     activate: (context) => context.register('shared'),
   }
 
@@ -44,7 +44,7 @@ test('rejects duplicate contributions', () => {
     () =>
       host.activate({
         id: 'duplicate',
-        platforms: ['cli-web'],
+        platforms: ['electron'],
         activate: (context) => context.register('shared'),
       }),
     /already registered by plugin "first"/
@@ -53,12 +53,12 @@ test('rejects duplicate contributions', () => {
 
 test('filters unsupported plugins and disposes active plugins in reverse order', () => {
   const events: string[] = []
-  const host = new PluginHost<Record<string, never>>('cli-web', () => ({}))
+  const host = new PluginHost<Record<string, never>>('electron', () => ({}))
 
   assert.equal(
     host.activate({
-      id: 'web-wasm-only',
-      platforms: ['web-wasm'],
+      id: 'no-supported-platform',
+      platforms: [],
       activate: () => {
         events.push('unexpected')
       },
@@ -67,12 +67,12 @@ test('filters unsupported plugins and disposes active plugins in reverse order',
   )
   host.activate({
     id: 'first',
-    platforms: ['cli-web'],
+    platforms: ['electron'],
     activate: () => () => events.push('first'),
   })
   host.activate({
     id: 'second',
-    platforms: ['cli-web'],
+    platforms: ['electron'],
     activate: () => () => events.push('second'),
   })
 
@@ -82,8 +82,8 @@ test('filters unsupported plugins and disposes active plugins in reverse order',
 
 test('adds late resources to the active plugin lifecycle', () => {
   const events: string[] = []
-  const host = new PluginHost<Record<string, never>>('cli-web', () => ({}))
-  host.activate({ id: 'late-resource', platforms: ['cli-web'], activate: () => () => events.push('activation') })
+  const host = new PluginHost<Record<string, never>>('electron', () => ({}))
+  host.activate({ id: 'late-resource', platforms: ['electron'], activate: () => () => events.push('activation') })
 
   host.addDisposer('late-resource', () => events.push('late'))
   host.dispose('late-resource')

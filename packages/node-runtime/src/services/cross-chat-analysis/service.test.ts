@@ -18,7 +18,7 @@ import type { SessionRuntimeAdapter } from '../adapters'
 import { createCrossChatAnalysisService } from './service'
 import { preprocessCrossChatLabel, preprocessCrossChatMessages, preprocessCrossChatSummaries } from './preprocess'
 
-const nativeBinding = path.resolve('apps/cli/native/better_sqlite3.node')
+const nativeBinding = path.resolve('native/better_sqlite3.node')
 
 interface SeedSession {
   id: string

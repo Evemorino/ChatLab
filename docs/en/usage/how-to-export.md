@@ -101,7 +101,7 @@ ChatLab's function is to **analyze exported chat records in fixed text formats**
 
 We **do not provide any decryption, packet capture, or export tools and scripts**. We only support compatibility with exported chat record formats. As long as you can provide anonymized chat record text samples, we can try to support analysis.
 
-If you have some technical background, you can try using **AI-assisted conversion** to convert your data to the standard format. For details, please check the [AI Conversion Guide](../standard/ai-converter.md).
+If you have some technical background, you can try converting your data to the standard format yourself. For details, please check the [ChatLab Format specification](../standard/chatlab-format.md).
 
 Additionally, if you're a developer and have already supported chat record export for other chat applications, you're welcome to [make it compatible with ChatLab format](../standard/chatlab-format.md), and we'll add your GitHub link here.
 

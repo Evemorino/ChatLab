@@ -14,7 +14,6 @@ import wordFilter from './wordFilter.json'
 import contacts from './contacts.json'
 import relationships from './relationships.json'
 import insight from './insight.json'
-import browser from './browser.json'
 
 export default {
   common,
@@ -33,5 +32,4 @@ export default {
   contacts,
   relationships,
   insight,
-  browser,
 }

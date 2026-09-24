@@ -1,0 +1,6 @@
+# Dev toolchain pins for mise (https://mise.jdx.dev).
+# Keep in sync with package.json: node matches "engines.node" (>=24 <25),
+# pnpm must match "packageManager" exactly or pnpm re-downloads that version.
+[tools]
+node = "24"
+pnpm = "11.21.0"

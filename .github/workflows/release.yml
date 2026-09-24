@@ -130,12 +130,11 @@ jobs:
           echo "Injecting version: $VERSION"
           node -e "
             const fs = require('fs');
-            for (const p of ['apps/desktop/package.json', 'apps/cli/package.json']) {
-              const pkg = JSON.parse(fs.readFileSync(p, 'utf-8'));
-              pkg.version = '${VERSION}';
-              fs.writeFileSync(p, JSON.stringify(pkg, null, 2) + '\n');
-              console.log(p + ' → ' + '${VERSION}');
-            }
+            const p = 'apps/desktop/package.json';
+            const pkg = JSON.parse(fs.readFileSync(p, 'utf-8'));
+            pkg.version = '${VERSION}';
+            fs.writeFileSync(p, JSON.stringify(pkg, null, 2) + '\n');
+            console.log(p + ' → ' + '${VERSION}');
           "
 
       - name: Cache Electron and electron-builder binaries
@@ -164,9 +163,6 @@ jobs:
           APPLE_API_KEY: ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
           APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
-          # 分析服务
-          UMAMI_ENDPOINT: ${{ secrets.UMAMI_ENDPOINT }}
-          UMAMI_WEBSITE_ID: ${{ secrets.UMAMI_WEBSITE_ID }}
         working-directory: apps/desktop
         run: pnpm run build && pnpm exec electron-builder --mac --arm64 --config electron-builder.yml -p never
 
@@ -187,192 +183,14 @@ jobs:
           if-no-files-found: warn
           retention-days: 1 # 只保留1天，Release后会上传到GitHub Releases
 
-  build-win:
-    needs: [prepare_release]
-    runs-on: windows-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Setup pnpm and Node.js
-        uses: pnpm/setup@v2
-        with:
-          runtime: node@24
-          install: false
-
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      # 只暴露 System32 的 tar.exe 到 PATH。不能把整个 System32 置前：
-      # 那会让 WSL 的 bash.EXE 遮蔽 Git Bash，导致后续所有 shell: bash 步骤
-      # （含 dtolnay/rust-toolchain 内部脚本）在无 WSL 发行版的 runner 上失败
-      - name: Use Windows system tar (fix zstd cache issue)
-        shell: pwsh
-        run: |
-          $tarDir = Join-Path $env:RUNNER_TEMP 'system-tar'
-          New-Item -ItemType Directory -Force -Path $tarDir | Out-Null
-          Copy-Item "$env:SystemRoot\System32\tar.exe" -Destination $tarDir
-          Add-Content -Path $env:GITHUB_PATH -Value $tarDir
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v5
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
-      - name: Install dependencies
-        env:
-          PNPM_CONFIG_NODE_LINKER: hoisted
-        run: pnpm install --frozen-lockfile
-
-      # Rust native parser：Windows release 仅构建 x64（与 electron-builder --win 默认一致）
-      - name: Setup Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Setup Rust cache
-        uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: packages/parser-native
-
-      - name: Build native parser (win x64)
-        run: pnpm --filter @openchatlab/parser-native build
-
-      - name: Verify native parser artifact
-        shell: bash
-        run: ls -la packages/parser-native/chatlab-parser-native.win32-x64-msvc.node
-
-      - name: Inject version into app package.json
-        shell: pwsh
-        run: |
-          $env:RELEASE_VERSION = "${{ needs.prepare_release.outputs.version }}"
-          Write-Host "Injecting version: $env:RELEASE_VERSION"
-          node -e "
-            const fs = require('fs');
-            const version = process.env.RELEASE_VERSION;
-            for (const p of ['apps/desktop/package.json', 'apps/cli/package.json']) {
-              const pkg = JSON.parse(fs.readFileSync(p, 'utf-8'));
-              pkg.version = version;
-              fs.writeFileSync(p, JSON.stringify(pkg, null, 2) + '\n');
-              console.log(p + ' -> ' + version);
-            }
-          "
-
-      - name: Cache Electron and electron-builder binaries
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/AppData/Local/electron/Cache
-            ~/AppData/Local/electron-builder/Cache
-          key: ${{ runner.os }}-electron-builder-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-electron-builder-
-
-      - name: Build Electron app for Windows
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          # 分析服务
-          UMAMI_ENDPOINT: ${{ secrets.UMAMI_ENDPOINT }}
-          UMAMI_WEBSITE_ID: ${{ secrets.UMAMI_WEBSITE_ID }}
-        working-directory: apps/desktop
-        run: pnpm run build:win
-
-      - name: Verify native parser in packaged app (win x64)
-        shell: bash
-        run: node scripts/check-desktop-native.mjs win32-x64-msvc
-
-      - name: Verify packaged SQLite runtime (win x64)
-        run: node scripts/check-packaged-sqlite.mjs
-
-      - name: Upload Windows artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: ChatLab-win
-          path: |
-            apps/desktop/dist/*.exe
-            apps/desktop/dist/*.yml
-            apps/desktop/dist/*.json
-            apps/desktop/dist/*.blockmap
-          if-no-files-found: warn
-          retention-days: 1 # 只保留1天，Release后会上传到GitHub Releases
-
-  build-cli:
-    needs: [prepare_release]
-    # Prereleases are desktop-only; stable releases also build and publish CLI artifacts.
-    if: needs.prepare_release.outputs.is_prerelease == 'false'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Setup pnpm and Node.js
-        uses: pnpm/setup@v2
-        with:
-          runtime: node@24
-          install: false
-
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v5
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
-      - name: Install dependencies
-        env:
-          PNPM_CONFIG_NODE_LINKER: hoisted
-        run: pnpm install --frozen-lockfile
-
-      - name: Inject CLI version
-        run: |
-          node -e "
-            const fs = require('fs');
-            const pkg = JSON.parse(fs.readFileSync('apps/cli/package.json', 'utf-8'));
-            pkg.version = '${{ needs.prepare_release.outputs.version }}';
-            fs.writeFileSync('apps/cli/package.json', JSON.stringify(pkg, null, 2) + '\n');
-          "
-
-      - name: Build CLI (with Web UI)
-        env:
-          UMAMI_ENDPOINT: ${{ secrets.UMAMI_ENDPOINT }}
-          UMAMI_WEBSITE_ID: ${{ secrets.UMAMI_WEBSITE_ID }}
-        run: pnpm --filter chatlab-cli run build:full
-
-      - name: Upload CLI build output
-        uses: actions/upload-artifact@v6
-        with:
-          name: ChatLab-cli-build
-          path: |
-            apps/cli/dist
-            apps/cli/dist-cli-web
-          if-no-files-found: error
-          retention-days: 1
-
   release:
-    needs: [prepare_release, build-mac, build-win, build-cli]
+    needs: [prepare_release, build-mac]
     runs-on: ubuntu-latest
     if: >-
       ${{
         !cancelled() &&
         needs.prepare_release.result == 'success' &&
         needs.build-mac.result == 'success' &&
-        needs.build-win.result == 'success' &&
-        (
-          needs.build-cli.result == 'success' ||
-          (
-            needs.prepare_release.outputs.is_prerelease == 'true' &&
-            needs.build-cli.result == 'skipped'
-          )
-        ) &&
         (startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch')
       }}
 
@@ -385,12 +203,6 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: ChatLab-mac-arm64
-          path: release-dist
-
-      - name: Download Windows artifacts
-        uses: actions/download-artifact@v8
-        with:
-          name: ChatLab-win
           path: release-dist
 
       - name: List files
@@ -432,7 +244,6 @@ jobs:
             echo "| Platform | File |"
             echo "|-----------------|-------------|"
             echo "| Mac (Apple Silicon) | [ChatLab-${VERSION_NUMBER}-arm64.dmg](https://github.com/ChatLab/ChatLab/releases/download/v${VERSION_NUMBER}/ChatLab-${VERSION_NUMBER}-arm64.dmg) |"
-            echo "| Windows | [ChatLab-${VERSION_NUMBER}-setup.exe](https://github.com/ChatLab/ChatLab/releases/download/v${VERSION_NUMBER}/ChatLab-${VERSION_NUMBER}-setup.exe) |"
           } > release_notes.md
 
           echo "Generated release notes:"
@@ -446,196 +257,9 @@ jobs:
           prerelease: ${{ needs.prepare_release.outputs.is_prerelease }}
           body_path: release_notes.md
           files: |
-            release-dist/*.exe
             release-dist/*.dmg
             release-dist/*.zip
             release-dist/*.yml
             release-dist/*.blockmap
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # 同步到 Cloudflare R2（国内镜像）
-      # 注意：beta/alpha/rc 等预发布版本不上传到 R2
-      - name: Print R2 upload metadata
-        run: |
-          echo "Release tag: ${{ needs.prepare_release.outputs.version_tag }}"
-          echo "Prerelease: ${{ needs.prepare_release.outputs.is_prerelease }}"
-
-      # 上传所有文件到版本目录
-      - name: Upload to Cloudflare R2 (version directory)
-        if: needs.prepare_release.outputs.is_prerelease == 'false'
-        uses: ryand56/r2-upload-action@latest
-        with:
-          r2-account-id: ${{ secrets.R2_ACCOUNT_ID }}
-          r2-access-key-id: ${{ secrets.R2_ACCESS_KEY_ID }}
-          r2-secret-access-key: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          r2-bucket: ${{ secrets.R2_BUCKET_NAME }}
-          source-dir: release-dist
-          destination-dir: releases/download/${{ needs.prepare_release.outputs.version_tag }}
-
-      # 准备 yml 文件用于根目录上传
-      # 需要修改 yml 中的 path/url 为包含版本号的完整路径
-      - name: Prepare yml files for root upload
-        if: needs.prepare_release.outputs.is_prerelease == 'false'
-        run: |
-          mkdir -p dist-yml
-          VERSION_TAG="${{ needs.prepare_release.outputs.version_tag }}"
-
-          # 处理所有 yml 文件
-          for yml_file in release-dist/*.yml; do
-            filename=$(basename "$yml_file")
-            echo "Processing $filename..."
-
-            # 使用 sed 修改 path 和 url 字段，添加版本目录前缀
-            # path: ChatLab-x.x.x-arm64.dmg → path: vx.x.x/ChatLab-x.x.x-arm64.dmg
-            # url: ChatLab-x.x.x-arm64.dmg → url: vx.x.x/ChatLab-x.x.x-arm64.dmg
-            sed -E "s|^(path: )(.+)|\1${VERSION_TAG}/\2|g; s|^(  - url: )(.+)|\1${VERSION_TAG}/\2|g" "$yml_file" > "dist-yml/$filename"
-
-            echo "Original:"
-            cat "$yml_file"
-            echo ""
-            echo "Modified:"
-            cat "dist-yml/$filename"
-            echo "---"
-          done
-
-      # 上传 yml 文件到根目录（覆盖旧版本，electron-updater 从这里检测更新）
-      - name: Upload yml files to Cloudflare R2 (root directory)
-        if: needs.prepare_release.outputs.is_prerelease == 'false'
-        uses: ryand56/r2-upload-action@latest
-        with:
-          r2-account-id: ${{ secrets.R2_ACCOUNT_ID }}
-          r2-access-key-id: ${{ secrets.R2_ACCESS_KEY_ID }}
-          r2-secret-access-key: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          r2-bucket: ${{ secrets.R2_BUCKET_NAME }}
-          source-dir: dist-yml
-          destination-dir: releases/download
-
-  publish-cli:
-    needs: [prepare_release, build-cli]
-    if: needs.prepare_release.outputs.is_prerelease == 'false'
-    runs-on: ubuntu-latest
-
-    # 必须显式声明 id-token 写入权限，用于 OIDC 与 npm 握手交换临时 Token
-    permissions:
-      contents: read
-      id-token: write
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: '24'
-          registry-url: 'https://registry.npmjs.org'
-          package-manager-cache: false
-
-      - name: Inject CLI version
-        run: |
-          node -e "
-            const fs = require('fs');
-            const pkg = JSON.parse(fs.readFileSync('apps/cli/package.json', 'utf-8'));
-            pkg.version = '${{ needs.prepare_release.outputs.version }}';
-            fs.writeFileSync('apps/cli/package.json', JSON.stringify(pkg, null, 2) + '\n');
-          "
-
-      - name: Download CLI build output
-        uses: actions/download-artifact@v8
-        with:
-          name: ChatLab-cli-build
-          path: apps/cli
-
-      - name: Copy README for npm publish
-        run: cp README.md apps/cli/README.md
-
-      - name: Publish to npm
-        working-directory: apps/cli
-        run: npm publish --ignore-scripts --provenance --tag ${{ needs.prepare_release.outputs.npm_tag }}
-
-  publish-docker:
-    # The image installs the published npm package and does not consume desktop release artifacts.
-    needs: [prepare_release, publish-cli]
-    if: needs.prepare_release.outputs.is_prerelease == 'false'
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Wait for npm package availability
-        timeout-minutes: 5
-        shell: bash
-        env:
-          CHATLAB_VERSION: ${{ needs.prepare_release.outputs.version }}
-        run: |
-          for attempt in {1..30}; do
-            published_version="$(npm view "chatlab-cli@${CHATLAB_VERSION}" version --registry=https://registry.npmjs.org --prefer-online --fetch-timeout=10000 --fetch-retries=0 2>/dev/null || true)"
-            if [ "$published_version" = "$CHATLAB_VERSION" ]; then
-              echo "chatlab-cli@${CHATLAB_VERSION} is available on npm"
-              exit 0
-            fi
-
-            echo "Waiting for chatlab-cli@${CHATLAB_VERSION} to become available on npm (${attempt}/30)"
-            sleep 10
-          done
-
-          echo "::error::chatlab-cli@${CHATLAB_VERSION} was not available on npm after 5 minutes"
-          exit 1
-
-      - name: Checkout image definition
-        uses: actions/checkout@v5
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ github.token }}
-
-      - name: Docker metadata
-        id: meta
-        uses: docker/metadata-action@v6
-        with:
-          images: ghcr.io/${{ github.repository_owner }}/chatlab-cli
-          tags: |
-            type=raw,value=${{ needs.prepare_release.outputs.version_tag }}
-            type=raw,value=latest,enable=${{ needs.prepare_release.outputs.npm_tag == 'latest' }}
-          labels: |
-            org.opencontainers.image.source=https://github.com/${{ github.repository }}
-            org.opencontainers.image.version=${{ needs.prepare_release.outputs.version_tag }}
-            org.opencontainers.image.revision=${{ github.sha }}
-
-      - name: Build and push
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          file: .github/docker/chatlab-cli.Dockerfile
-          push: true
-          platforms: linux/amd64,linux/arm64
-          build-args: |
-            CHATLAB_VERSION=${{ needs.prepare_release.outputs.version }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha,scope=chatlab-cli
-          cache-to: type=gha,mode=max,scope=chatlab-cli
-
-  cleanup-r2:
-    needs: [prepare_release, release]
-    if: needs.prepare_release.outputs.is_prerelease == 'false'
-    uses: ./.github/workflows/cleanup-r2.yml
-    with:
-      keep_count: '3'
-    secrets:
-      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
-      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-      R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}

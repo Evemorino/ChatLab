@@ -26,39 +26,31 @@ pnpm install
 
 ## Local Commands
 
-| Command | Purpose |
-| --- | --- |
-| `pnpm dev` | Select Desktop, CLI Web, Web WASM, API Server, or docs interactively |
-| `pnpm dev:desktop` | Start the Electron desktop app in development mode |
-| `pnpm dev:cli-web` | Start CLI Web (Node backend + Web UI) in development mode at `http://127.0.0.1:3100/` by default |
-| `pnpm dev:web-wasm` | Start Web WASM (browser-only runtime) at `http://127.0.0.1:3130/` by default |
-| `pnpm docs:dev` | Start the public docs site locally |
-| `pnpm build:desktop` | Build the desktop app |
-| `pnpm build:cli-web` | Build the CLI Web UI |
-| `pnpm build:web-wasm` | Build Web WASM |
-| `pnpm docs:build` | Build the public docs site |
-| `pnpm run type-check:all` | Run both web and Node type checks |
-| `pnpm lint` | Run ESLint with auto-fix |
-| `pnpm format` | Run Prettier formatting |
+| Command                   | Purpose                                            |
+| ------------------------- | -------------------------------------------------- |
+| `pnpm dev`                | Select Desktop or docs interactively               |
+| `pnpm dev:desktop`        | Start the Electron desktop app in development mode |
+| `pnpm docs:dev`           | Start the public docs site locally                 |
+| `pnpm build:desktop`      | Build the desktop app                              |
+| `pnpm docs:build`         | Build the public docs site                         |
+| `pnpm run type-check:all` | Run both web and Node type checks                  |
+| `pnpm lint`               | Run ESLint with auto-fix                           |
+| `pnpm format`             | Run Prettier formatting                            |
 
 For small changes, prefer targeted checks for the files or package you changed. For cross-module, release, or architecture changes, run the broader checks.
 
 ## Platform Terminology
 
-- **CLI Web** runs through `clb web` and includes a Node.js backend plus the Web UI.
-- **Web WASM** has no Node.js backend; parsing, storage, and queries run in the browser.
-- "Web" is the umbrella term. When context cannot distinguish the platform, it defaults to **Web WASM**.
-- "Backend" and "API Server" refer only to the Node.js process, not the complete CLI Web platform.
-- **Browser Runtime** refers only to technical capabilities such as Workers, OPFS, SQLite WASM, and browser adapters; it is not another platform name.
+- **Desktop** is the only graphical runtime in this fork; the renderer reaches shared business logic through the main process's internal HTTP server.
+- **MCP** is `packages/mcp-server`, a standalone process that gives external AI agents read-only access to imported data. It has its own bin and does not depend on the desktop app running.
 
 ## Repository Structure
 
 | Path | Responsibility |
 | --- | --- |
 | `src/` | Shared frontend app code, including pages, components, services, stores, and i18n |
-| `src/services/` | Frontend service layer for Electron, CLI Web API, and platform capabilities |
+| `src/services/` | Frontend service layer for the Electron internal API and platform capabilities |
 | `apps/desktop/` | Electron main process, preload, and desktop build configuration |
-| `apps/cli/` | CLI, HTTP API, CLI Web runtime, and import commands |
 | `packages/core/` | Platform-independent data model, queries, imports, and member operations |
 | `packages/node-runtime/` | Node.js runtime services, database, AI, exports, caches, and migrations |
 | `packages/tools/` | Shared AI tool definitions and data access adapters |
@@ -68,7 +60,7 @@ For small changes, prefer targeted checks for the files or package you changed. 
 
 ## Architecture Boundaries
 
-ChatLab maintains the Electron desktop app, CLI Web, and Web WASM. When changing shared business behavior, put the logic in `packages/node-runtime/src/services/` or `packages/core/` first, and keep entry points thin.
+ChatLab's graphical runtime is the Electron desktop app only; the CLI and MCP reuse the same Node-side services. When changing shared business behavior, put the logic in `packages/node-runtime/src/services/` or `packages/core/` first, and keep entry points thin.
 
 - Do not duplicate complex business flows inside Electron IPC handlers or CLI HTTP routes.
 - Do not bypass `packages/core/` in entry points to write core SQL operations such as member merge, delete, or alias updates.
@@ -77,7 +69,7 @@ ChatLab maintains the Electron desktop app, CLI Web, and Web WASM. When changing
 
 ## Data Directory Compatibility Gate
 
-Electron desktop, CLI Web, and MCP can share the same `userDataDir`. If a newer runtime changes the database schema, AI data, auth config, or data directory layout, an older runtime may read incorrect data or corrupt user data. Any change that makes old runtimes unsafe for the same data directory must use the data directory compatibility gate.
+The Electron desktop app, the CLI and MCP share one `userDataDir`. If a newer runtime changes the database schema, AI data, auth config, or data directory layout, an older runtime may read incorrect data or corrupt user data. Any change that makes old runtimes unsafe for the same data directory must use the data directory compatibility gate.
 
 The compatibility metadata file is:
 
@@ -129,24 +121,24 @@ Compatibility-related changes should cover:
 
 ## Common Change Entry Points
 
-| If you want to change | Start here |
-| --- | --- |
-| Frontend pages and components | `src/pages/`, `src/components/` |
-| Chart analysis | `src/components/analysis/`, `src/components/charts/` |
-| Data, message, and session API calls | `src/services/` |
-| Electron main process | `apps/desktop/main/`, `apps/desktop/preload/` |
-| CLI and Web API | `apps/cli/` |
-| Shared business logic | `packages/node-runtime/src/services/`, `packages/core/` |
-| AI tools and agents | `packages/tools/`, `packages/node-runtime/src/ai/`, `src/services/ai*` |
-| Import parsing | `packages/core/`, `apps/cli/src/import/`, `src/services/import/` |
-| Documentation site | `docs/`, `docs/.vitepress/config.mts` |
-| Changelog | `changelogs/` |
+| If you want to change                | Start here                                                                    |
+| ------------------------------------ | ----------------------------------------------------------------------------- |
+| Frontend pages and components        | `src/pages/`, `src/components/`                                               |
+| Chart analysis                       | `src/components/analysis/`, `src/components/charts/`                          |
+| Data, message, and session API calls | `src/services/`                                                               |
+| Electron main process                | `apps/desktop/main/`, `apps/desktop/preload/`                                 |
+| External API and MCP                 | `apps/desktop/main/api/`, `packages/http-routes/`, `packages/mcp-server/`     |
+| Shared business logic                | `packages/node-runtime/src/services/`, `packages/core/`                       |
+| AI tools and agents                  | `packages/tools/`, `packages/node-runtime/src/ai/`, `src/services/ai*`        |
+| Import parsing                       | `packages/core/`, `packages/node-runtime/src/import/`, `src/services/import/` |
+| Documentation site                   | `docs/`, `docs/.vitepress/config.mts`                                         |
+| Changelog                            | `changelogs/`                                                                 |
 
 ## Tests And Checks
 
 - After changing TypeScript or Vue code, run at least the relevant type check.
 - After changing public docs, run `pnpm docs:build` or targeted formatting checks for the changed Markdown/config files.
-- After changing shared cross-platform logic, confirm Electron and CLI Web entry points do not diverge in behavior.
+- After changing shared cross-runtime logic, confirm the Electron internal API and the CLI and MCP entry points do not diverge in behavior.
 - Daily default test command is `pnpm test`; to prioritize related tests, run `pnpm test -- path/to/file.test.ts`.
 - `pnpm test` should include only unit/integration tests and must not depend on real LLMs, real Electron, real browsers, real network, or long-running E2E.
 - Unit tests tightly coupled to one business module should live next to the tested file and use `*.test.ts` or `*.test.js`.

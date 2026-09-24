@@ -18,8 +18,11 @@ const clientOptions = computed(() => [
 ])
 
 const configText = computed(() => {
-  const command = 'clb'
-  const args = ['mcp']
+  // No npm distribution in this fork, so the snippet points at the built
+  // standalone bin instead of an installed command; the placeholder keeps the
+  // checkout path out of generated copy that is otherwise locale-independent.
+  const command = 'node'
+  const args = ['<CHATLAB_REPO>/packages/mcp-server/bin/chatlab-mcp.js']
   switch (selectedClient.value) {
     case 'codex':
       return ['[mcp_servers.chatlab]', `command = "${command}"`, `args = ["${args[0]}"]`].join('\n')
@@ -78,7 +81,7 @@ function handleCopy() {
           </p>
           <div class="mt-2">
             <code class="inline-block rounded-md bg-gray-900 px-3 py-1.5 text-xs text-gray-100 dark:bg-page-dark">
-              npm install -g chatlab-cli
+              pnpm --filter chatlab-mcp build
             </code>
           </div>
         </div>

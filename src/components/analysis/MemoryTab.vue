@@ -3,7 +3,6 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { SectionTabs } from '@/components/navigation'
 import { ChatRecordWorkspace } from '@/components/common/ChatRecord'
-import { IS_WEB_WASM } from '@/utils/platform'
 
 const { t } = useI18n()
 
@@ -32,7 +31,7 @@ const subTabs = computed(() => [
         :key="sessionId"
         :session-id="sessionId"
         mode="page"
-        :show-topics="!IS_WEB_WASM"
+        show-topics
       />
     </div>
   </div>

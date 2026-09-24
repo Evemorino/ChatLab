@@ -16,7 +16,7 @@ import {
 import { accumulateSelectedCoOccurrencePairs } from '../advanced/social'
 import type { DatabaseAdapter, PreparedStatement, RunResult } from '../../interfaces'
 
-const nativeBinding = path.resolve('apps/cli/native/better_sqlite3.node')
+const nativeBinding = path.resolve('native/better_sqlite3.node')
 
 class Stmt implements PreparedStatement {
   readonly?: boolean

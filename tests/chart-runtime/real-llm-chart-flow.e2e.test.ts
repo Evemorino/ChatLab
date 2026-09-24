@@ -21,7 +21,7 @@ const shouldRunRealLlmE2E = process.env.CHATLAB_RUN_REAL_LLM_CHART_E2E === '1'
 
 function resolveNativeBinding(): string | undefined {
   if (process.env.CHATLAB_TEST_SQLITE_NATIVE_BINDING) return process.env.CHATLAB_TEST_SQLITE_NATIVE_BINDING
-  const repoNativeBinding = path.resolve('apps/cli/native/better_sqlite3.node')
+  const repoNativeBinding = path.resolve('native/better_sqlite3.node')
   return existsSync(repoNativeBinding) ? repoNativeBinding : undefined
 }
 

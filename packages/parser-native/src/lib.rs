@@ -9,8 +9,6 @@ mod scanner;
 mod shuakami_qq;
 #[cfg(feature = "napi")]
 mod shuakami_qq_v4;
-#[cfg(feature = "wasm")]
-mod wasm;
 mod weflow;
 
 #[cfg(feature = "napi")]

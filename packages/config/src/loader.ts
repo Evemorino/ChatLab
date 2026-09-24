@@ -74,26 +74,20 @@ function loadConfigFile(): Record<string, unknown> {
  *
  * 映射规则：
  * - CHATLAB_DATA_DIR       -> data.user_data_dir
- * - CHATLAB_API_PORT       -> api.port
- * - CHATLAB_API_HOST       -> api.host
  * - CHATLAB_LLM_PROVIDER   -> llm.provider
  * - CHATLAB_LLM_MODEL      -> llm.model
  * - CHATLAB_LLM_BASE_URL   -> llm.base_url
  * - CHATLAB_LOCALE_LANG    -> locale.lang
- * - CHATLAB_CLI_ALLOW_RAW  -> cli.allow_raw ('1'/'true' enables)
  */
 function loadEnvConfig(): Record<string, unknown> {
   const result: Record<string, Record<string, unknown>> = {}
 
   const envMap: Array<{ env: string; section: string; key: string; transform?: (v: string) => unknown }> = [
     { env: 'CHATLAB_DATA_DIR', section: 'data', key: 'user_data_dir' },
-    { env: 'CHATLAB_API_PORT', section: 'api', key: 'port', transform: (v) => parseInt(v, 10) },
-    { env: 'CHATLAB_API_HOST', section: 'api', key: 'host' },
     { env: 'CHATLAB_LLM_PROVIDER', section: 'llm', key: 'provider' },
     { env: 'CHATLAB_LLM_MODEL', section: 'llm', key: 'model' },
     { env: 'CHATLAB_LLM_BASE_URL', section: 'llm', key: 'base_url' },
     { env: 'CHATLAB_LOCALE_LANG', section: 'locale', key: 'lang' },
-    { env: 'CHATLAB_CLI_ALLOW_RAW', section: 'cli', key: 'allow_raw', transform: (v) => v === '1' || v === 'true' },
   ]
 
   for (const { env, section, key, transform } of envMap) {

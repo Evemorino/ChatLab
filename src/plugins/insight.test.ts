@@ -29,7 +29,7 @@ function createTestHost(): { localeHost: PluginLocaleHost; uiHost: UiHostContext
 
 test('registers annual summary as a removable Desktop and CLI Web contribution', () => {
   const { uiHost, localeHost } = createTestHost()
-  const runtime = createInsightPluginRuntime('cli-web', uiHost, localeHost, [annualSummaryPlugin])
+  const runtime = createInsightPluginRuntime('electron', uiHost, localeHost, [annualSummaryPlugin])
 
   assert.equal(runtime.isActive(annualSummaryPlugin.id), true)
   assert.equal(runtime.getDefaultPage()?.id, 'annual-summary')
@@ -51,38 +51,21 @@ test('registers annual summary as a removable Desktop and CLI Web contribution',
   assert.equal(uiHost.locale.translate(title), 'title')
 })
 
-test('keeps the annual summary plugin out of Web WASM', () => {
+test('registers time investment and removes all of its contributions', () => {
   const { uiHost, localeHost } = createTestHost()
-  const runtime = createInsightPluginRuntime('web-wasm', uiHost, localeHost, [
-    annualSummaryPlugin,
-    timeInvestmentPlugin,
-  ])
+  const runtime = createInsightPluginRuntime('electron', uiHost, localeHost, [timeInvestmentPlugin])
+  const title = runtime.getPage('time-investment')!.title
 
-  assert.equal(runtime.isActive(annualSummaryPlugin.id), false)
   assert.equal(runtime.isActive(timeInvestmentPlugin.id), true)
+  assert.equal(uiHost.locale.translate(title), 'Time Investment')
   assert.deepEqual(
-    listInsightShellPages(runtime).map((page) => page.id),
+    runtime.listNavigation().map(({ page }) => page.id),
     ['time-investment']
   )
-})
 
-test('registers time investment on every platform and removes all of its contributions', () => {
-  for (const platform of ['electron', 'cli-web', 'web-wasm'] as const) {
-    const { uiHost, localeHost } = createTestHost()
-    const runtime = createInsightPluginRuntime(platform, uiHost, localeHost, [timeInvestmentPlugin])
-    const title = runtime.getPage('time-investment')!.title
-
-    assert.equal(runtime.isActive(timeInvestmentPlugin.id), true)
-    assert.equal(uiHost.locale.translate(title), 'Time Investment')
-    assert.deepEqual(
-      runtime.listNavigation().map(({ page }) => page.id),
-      ['time-investment']
-    )
-
-    runtime.dispose(timeInvestmentPlugin.id)
-    assert.equal(runtime.getPage('time-investment'), undefined)
-    assert.equal(uiHost.locale.translate(title), 'title')
-  }
+  runtime.dispose(timeInvestmentPlugin.id)
+  assert.equal(runtime.getPage('time-investment'), undefined)
+  assert.equal(uiHost.locale.translate(title), 'title')
 })
 
 test('combines plugin and legacy Insight pages by navigation order', () => {
@@ -102,7 +85,7 @@ test('rolls back a plugin whose navigation targets an unknown page', () => {
   const { uiHost, localeHost } = createTestHost()
   const brokenPlugin: InsightPlugin = {
     id: 'broken-insight',
-    platforms: ['cli-web'],
+    platforms: ['electron'],
     activate(context) {
       assert.equal(context.ui, uiHost)
       context.locale.register('plugins.broken-insight', {
@@ -114,7 +97,7 @@ test('rolls back a plugin whose navigation targets an unknown page', () => {
       context.navigation.register({ id: 'broken-entry', pageId: 'missing-page', order: 1 })
     },
   }
-  const runtime = createInsightPluginRuntime('cli-web', uiHost, localeHost)
+  const runtime = createInsightPluginRuntime('electron', uiHost, localeHost)
 
   assert.throws(() => runtime.activate(brokenPlugin), /targets unknown page "missing-page"/)
   assert.equal(runtime.isActive(brokenPlugin.id), false)
@@ -124,10 +107,10 @@ test('rolls back a plugin whose navigation targets an unknown page', () => {
 
 test('normalizes time filter declarations and rejects invalid defaults', () => {
   const { uiHost, localeHost } = createTestHost()
-  const runtime = createInsightPluginRuntime('cli-web', uiHost, localeHost)
+  const runtime = createInsightPluginRuntime('electron', uiHost, localeHost)
   runtime.activate({
     id: 'normalized-filter',
-    platforms: ['cli-web'],
+    platforms: ['electron'],
     activate(context) {
       context.pages.register({
         id: 'normalized',
@@ -156,7 +139,7 @@ test('normalizes time filter declarations and rejects invalid defaults', () => {
     () =>
       runtime.activate({
         id: 'invalid-filter',
-        platforms: ['cli-web'],
+        platforms: ['electron'],
         activate(context) {
           context.pages.register({
             id: 'invalid',
@@ -176,13 +159,13 @@ test('normalizes time filter declarations and rejects invalid defaults', () => {
 
 test('rejects plugin pages that conflict with host-owned legacy pages', () => {
   const { uiHost, localeHost } = createTestHost()
-  const runtime = createInsightPluginRuntime('cli-web', uiHost, localeHost, [], getLegacyInsightPages('cli-web'))
+  const runtime = createInsightPluginRuntime('electron', uiHost, localeHost, [], getLegacyInsightPages('electron'))
 
   assert.throws(
     () =>
       runtime.activate({
         id: 'conflicting-page',
-        platforms: ['cli-web'],
+        platforms: ['electron'],
         activate(context) {
           context.pages.register({
             id: 'relationship-changes',

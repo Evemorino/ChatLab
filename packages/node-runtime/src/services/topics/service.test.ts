@@ -13,7 +13,7 @@ import type { ChatTopicModelClient } from './model-client'
 import { createChatTopicService, type ChatTopicService } from './service'
 import { chatTopicWorkCoordinator } from './work-coordinator'
 
-const nativeBinding = path.resolve('apps/cli/native/better_sqlite3.node')
+const nativeBinding = path.resolve('native/better_sqlite3.node')
 const dayStart = Date.parse('2026-08-08T16:00:00.000Z') / 1000
 
 function makeTempDir(): string {

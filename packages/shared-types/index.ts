@@ -1429,7 +1429,7 @@ export type DesktopCloseBehavior = 'background' | 'quit'
 
 // ==================== 匿名使用统计 ====================
 
-export type AnalyticsAppType = 'desktop' | 'cli' | 'cli_web' | 'web_wasm'
+export type AnalyticsAppType = 'desktop' | 'cli' | 'cli_web'
 
 export type AnalyticsEventName =
   | 'app_started'

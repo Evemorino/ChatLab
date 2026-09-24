@@ -1,8 +1,8 @@
 /**
- * CLI Web 模式下的 AIAdapter 实现
+ * 基于 HTTP 的 AIAdapter 实现
  *
- * 通过 HTTP 调用 clb web 后端的 /_web/ai/* 端点。
- * 不支持 Web 模式的功能（文件导出等）返回安全的降级响应。
+ * 通过 /_web/ai/* 访问 Electron 主进程的内部 API；桌面端的
+ * ElectronAIAdapter 继承本类，只覆盖需要走 IPC 的文件导出等行为。
  */
 
 import type {

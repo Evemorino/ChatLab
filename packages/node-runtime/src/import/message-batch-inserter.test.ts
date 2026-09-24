@@ -5,7 +5,7 @@ import Database from 'better-sqlite3'
 import { BetterSqliteAdapter } from '../better-sqlite3-adapter'
 import { MESSAGE_INSERT_MAX_ROWS, MessageBatchInserter, type MessageInsertRow } from './message-batch-inserter'
 
-const nativeBinding = path.resolve('apps/cli/native/better_sqlite3.node')
+const nativeBinding = path.resolve('native/better_sqlite3.node')
 const messageSchema = `
   CREATE TABLE message (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

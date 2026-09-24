@@ -22,7 +22,7 @@ export function useWeekdayActivity(options: UseWeekdayActivityOptions) {
 
     try {
       const result = await useDataService().getWeekdayActivity(sessionId, options.timeFilter())
-      // Browser Runtime 查询无法被 HTTP epoch 取消，旧筛选完成后不得覆盖最新结果。
+      // 筛选变化后旧请求仍可能晚于新请求返回，不得覆盖最新结果。
       if (currentVersion === loadVersion) {
         weekdayActivity.value = result
       }

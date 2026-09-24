@@ -5,7 +5,7 @@ import { annualSummaryLocaleMessages } from './locales'
 
 export const annualSummaryPlugin: InsightPlugin = {
   id: ANNUAL_SUMMARY_PLUGIN_ID,
-  platforms: ['electron', 'cli-web'],
+  platforms: ['electron'],
   activate(context) {
     context.locale.register(ANNUAL_SUMMARY_LOCALE_NAMESPACE, annualSummaryLocaleMessages)
     context.pages.register({

@@ -26,39 +26,31 @@ pnpm install
 
 ## 本地运行
 
-| 命令                      | 用途                                                                          |
-| ------------------------- | ----------------------------------------------------------------------------- |
-| `pnpm dev`                | 交互式选择 Desktop、CLI Web、CLI Web 的 API Server、Web WASM 或文档站开发目标 |
-| `pnpm dev:desktop`        | 启动 Electron 桌面端开发模式                                                  |
-| `pnpm dev:cli-web`        | 启动 CLI Web（Node 后端 + Web UI）开发模式，默认访问 `http://127.0.0.1:3100/` |
-| `pnpm dev:web-wasm`       | 启动 Web WASM（纯浏览器运行），默认访问 `http://127.0.0.1:3130/`              |
-| `pnpm docs:dev`           | 启动公开文档站开发模式                                                        |
-| `pnpm build:desktop`      | 构建桌面端                                                                    |
-| `pnpm build:cli-web`      | 构建 CLI Web UI                                                               |
-| `pnpm build:web-wasm`     | 构建 Web WASM                                                                 |
-| `pnpm docs:build`         | 构建公开文档站                                                                |
-| `pnpm run type-check:all` | 运行前端和 Node 侧类型检查                                                    |
-| `pnpm lint`               | 运行 ESLint 并自动修复                                                        |
-| `pnpm format`             | 运行 Prettier 格式化                                                          |
+| 命令                      | 用途                                |
+| ------------------------- | ----------------------------------- |
+| `pnpm dev`                | 交互式选择 Desktop 或文档站开发目标 |
+| `pnpm dev:desktop`        | 启动 Electron 桌面端开发模式        |
+| `pnpm docs:dev`           | 启动公开文档站开发模式              |
+| `pnpm build:desktop`      | 构建桌面端                          |
+| `pnpm docs:build`         | 构建公开文档站                      |
+| `pnpm run type-check:all` | 运行前端和 Node 侧类型检查          |
+| `pnpm lint`               | 运行 ESLint 并自动修复              |
+| `pnpm format`             | 运行 Prettier 格式化                |
 
 小范围改动优先对修改文件或相关子项目做定向检查；跨模块、发布或架构类改动再跑全量检查。
 
 ## 平台术语
 
-- **CLI Web**：由 `clb web` 运行，包含 Node.js 后端和 Web UI。
-- **Web WASM**：无 Node.js 后端，解析、存储和查询均在浏览器内运行。
-- “Web”是两者的上位概念。上下文无法区分时，默认指 **Web WASM**。
-- “后端”或“API Server”只指 Node.js 进程，不等于完整的 CLI Web。
-- **Browser Runtime** 只表示 Worker、OPFS、SQLite WASM 和浏览器 adapter 等技术能力，不是另一个平台名称。
+- **Desktop**：Electron 桌面端，本 fork 唯一的图形运行时，渲染进程通过主进程的内部 HTTP 服务访问业务逻辑。
+- **MCP**：`packages/mcp-server`，供外部 AI Agent 只读查询本机已导入数据的独立进程，有自己的 bin，不依赖桌面端启动。
 
 ## 目录职责
 
 | 路径                     | 职责                                                    |
 | ------------------------ | ------------------------------------------------------- |
 | `src/`                   | 共享前端应用代码，包含页面、组件、服务封装、状态和 i18n |
-| `src/services/`          | 前端访问 Electron、CLI Web API 和平台能力的服务层       |
+| `src/services/`          | 前端访问 Electron 内部 API 和平台能力的服务层           |
 | `apps/desktop/`          | Electron 主进程、preload 和桌面端构建配置               |
-| `apps/cli/`              | CLI、HTTP API、CLI Web 运行时和导入命令                 |
 | `packages/core/`         | 平台无关的核心数据模型、查询、导入和成员操作            |
 | `packages/node-runtime/` | Node.js 运行时服务、数据库、AI、导出、缓存和迁移        |
 | `packages/tools/`        | 统一 AI 工具定义和数据访问适配                          |
@@ -68,7 +60,7 @@ pnpm install
 
 ## 架构边界
 
-ChatLab 同时维护 Electron 桌面端、CLI Web 和 Web WASM。涉及共享业务逻辑时，优先把逻辑放到 `packages/node-runtime/src/services/` 或 `packages/core/`，入口层只做薄适配。
+ChatLab 的图形运行时只有 Electron 桌面端，CLI 和 MCP 复用同一套 Node 侧服务。涉及共享业务逻辑时，优先把逻辑放到 `packages/node-runtime/src/services/` 或 `packages/core/`，入口层只做薄适配。
 
 - 不要在 Electron IPC handler 或 CLI HTTP route 中重复实现复杂业务流程。
 - 不要在入口层绕过 `packages/core/` 直接写成员合并、删除、别名更新等核心 SQL 写操作。
@@ -77,7 +69,7 @@ ChatLab 同时维护 Electron 桌面端、CLI Web 和 Web WASM。涉及共享业
 
 ## 数据目录兼容门禁
 
-Electron 桌面端、CLI Web 和 MCP 会共享同一个 `userDataDir`。如果某个新版 runtime 修改了数据库 schema、AI 数据、认证配置或数据目录布局，旧 runtime 继续读写同一目录可能会读错数据或破坏用户数据。因此，凡是会让旧版本无法安全访问同一数据目录的变更，都必须使用数据目录兼容门禁。
+Electron 桌面端、CLI 和 MCP 会共享同一个 `userDataDir`。如果某个新版 runtime 修改了数据库 schema、AI 数据、认证配置或数据目录布局，旧 runtime 继续读写同一目录可能会读错数据或破坏用户数据。因此，凡是会让旧版本无法安全访问同一数据目录的变更，都必须使用数据目录兼容门禁。
 
 兼容标记文件位于：
 
@@ -129,24 +121,24 @@ CHATLAB_ALLOW_INCOMPATIBLE_DATA_DIR=1
 
 ## 常见改动入口
 
-| 想改什么                  | 先看哪里                                                               |
-| ------------------------- | ---------------------------------------------------------------------- |
-| 前端页面和组件            | `src/pages/`、`src/components/`                                        |
-| 图表分析                  | `src/components/analysis/`、`src/components/charts/`                   |
-| 数据、消息、会话 API 调用 | `src/services/`                                                        |
-| Electron 主进程           | `apps/desktop/main/`、`apps/desktop/preload/`                          |
-| CLI 和 Web API            | `apps/cli/`                                                            |
-| 共享业务逻辑              | `packages/node-runtime/src/services/`、`packages/core/`                |
-| AI 工具和 Agent           | `packages/tools/`、`packages/node-runtime/src/ai/`、`src/services/ai*` |
-| 导入解析                  | `packages/core/`、`apps/cli/src/import/`、`src/services/import/`       |
-| 文档站                    | `docs/`、`docs/.vitepress/config.mts`                                  |
-| 更新日志                  | `changelogs/`                                                          |
+| 想改什么                  | 先看哪里                                                                      |
+| ------------------------- | ----------------------------------------------------------------------------- |
+| 前端页面和组件            | `src/pages/`、`src/components/`                                               |
+| 图表分析                  | `src/components/analysis/`、`src/components/charts/`                          |
+| 数据、消息、会话 API 调用 | `src/services/`                                                               |
+| Electron 主进程           | `apps/desktop/main/`、`apps/desktop/preload/`                                 |
+| 外部 API 与 MCP           | `apps/desktop/main/api/`、`packages/http-routes/`、`packages/mcp-server/`     |
+| 共享业务逻辑              | `packages/node-runtime/src/services/`、`packages/core/`                       |
+| AI 工具和 Agent           | `packages/tools/`、`packages/node-runtime/src/ai/`、`src/services/ai*`        |
+| 导入解析                  | `packages/core/`、`packages/node-runtime/src/import/`、`src/services/import/` |
+| 文档站                    | `docs/`、`docs/.vitepress/config.mts`                                         |
+| 更新日志                  | `changelogs/`                                                                 |
 
 ## 测试与检查
 
 - 修改 TypeScript 或 Vue 代码后，至少运行相关类型检查。
 - 修改公开文档或 VitePress 配置后，运行 `pnpm docs:build`，并格式化修改文件；`docs/**/*.md` 被 Prettier 默认忽略，定向格式化时使用 `pnpm exec prettier --write --ignore-path .gitignore <files...>`。
-- 修改跨平台共享逻辑后，确认 Electron 和 CLI Web 两端入口没有产生行为分歧。
+- 修改跨端共享逻辑后，确认 Electron 内部 API 与 CLI、MCP 入口没有产生行为分歧。
 - 修复会影响用户数据、业务逻辑、异步任务、缓存状态、跨端共享 service、公开 API 契约、导入解析、去重逻辑、权限认证、AI 工具 allowlist、配置/API key 迁移或数据库 schema/迁移的行为 bug 时，必须优先补能失败的回归测试。
 - 只改 UI 文案、i18n key/翻译、样式、类型声明、日志、注释、无行为变化的小重构，或修复低风险展示细节时，可以不新增测试，但仍需运行相关类型检查、lint 和 format；不要为了低价值页面文案或源码字符串扫描新增脆弱测试。
 - 日常默认运行 `pnpm test`；需要优先验证相关文件时运行 `pnpm test -- path/to/file.test.ts`。

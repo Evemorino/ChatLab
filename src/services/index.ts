@@ -5,10 +5,7 @@
  * 各 Phase 实施时在此追加导出。
  */
 
-export { initServices, detectPlatform, type Platform } from './registry'
-
-export { useBrowserRuntimeService } from './browser-runtime/service'
-export type { BrowserRuntimeServiceAdapter } from './browser-runtime/types'
+export { initServices } from './registry'
 
 export { useDataService } from './data/service'
 export type { DataAdapter } from './data/types'

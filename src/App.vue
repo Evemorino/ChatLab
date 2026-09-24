@@ -10,7 +10,6 @@ import { useSessionStore } from '@/stores/session'
 import { useLayoutStore } from '@/stores/layout'
 import { useSettingsStore } from '@/stores/settings'
 import { useLLMStore } from '@/stores/llm'
-import { useAuthStore } from '@/stores/auth'
 import { useApiServerStore } from '@/stores/apiServer'
 import { initServices } from '@/services'
 import {
@@ -22,7 +21,6 @@ import { useWindowsTitleBarOverlay } from '@/composables/useWindowsTitleBarOverl
 import { configureHttpClient } from '@/services/utils/http'
 import { reportError } from '@/services/log-report'
 import { IS_ELECTRON } from '@/utils/platform'
-import { PLATFORM_CAPABILITIES } from '@/utils/platform-capabilities'
 import { usePlatformService } from '@/services'
 import { useNavigationLayoutService } from '@/services'
 import { NAVIGATION_LAYOUT_CUSTOMIZATION_ENABLED } from '@/navigation/layout'
@@ -31,7 +29,7 @@ import { redirectFromHiddenInsightPage } from '@/navigation/router'
 import type { PresentationPreferences } from '@/services/preferences/types'
 import { resolvePageTransitionKey } from '@/routes/page-transition-key'
 import { useLockScreenBootstrap } from '@/components/lock-screen/bootstrap'
-import { initializeAppRuntime, initializeProgressiveAppRuntime } from '@/bootstrap/app-initialization'
+import { initializeProgressiveAppRuntime } from '@/bootstrap/app-initialization'
 import { markStartupPhase, markStartupPhaseAfterPaint } from '@/bootstrap/startup-performance'
 import { resolveStartupPresentation } from '@/bootstrap/startup-presentation'
 import { STARTUP_PAGE_REVEAL_READY_KEY } from '@/bootstrap/startup-page-reveal'
@@ -56,7 +54,6 @@ const sessionStore = useSessionStore()
 const layoutStore = useLayoutStore()
 const settingsStore = useSettingsStore()
 const llmStore = useLLMStore()
-const authStore = useAuthStore()
 const apiServerStore = useApiServerStore()
 const route = useRoute()
 const router = useRouter()
@@ -64,7 +61,6 @@ const { controller: navigationLayoutController } = useNavigationLayout()
 const { isBootstrapMaskVisible, isApplicationInteractive, markLockScreenReady, syncBootstrapMask, updateLockState } =
   useLockScreenBootstrap(IS_ELECTRON)
 
-const isLoginPage = computed(() => PLATFORM_CAPABILITIES.requiresAuth && route.name === 'login')
 const pageTransitionKey = computed(() => resolvePageTransitionKey(route))
 const isRuntimeReady = ref(false)
 const shouldWaitForFullStartup = ref(true)
@@ -112,7 +108,7 @@ function prepareStartupPlayback(): void {
   shouldWaitForFullStartup.value = claimFullStartupPresentation()
 }
 
-if (!isLoginPage.value) prepareStartupPlayback()
+prepareStartupPlayback()
 
 function scheduleNonCriticalUiPrefetch() {
   if (cancelNonCriticalUiPrefetch) return
@@ -166,113 +162,74 @@ async function initializeApp() {
   initError.value = null
   presentationWarning.value = false
   try {
-    if (!PLATFORM_CAPABILITIES.usesBrowserRuntime) {
-      let presentationPromise: Promise<PresentationPreferences> | undefined
-      let presentationInitialized = false
-      const result = await initializeProgressiveAppRuntime({
-        initializeServices: async () => {
-          await initServices()
-          markStartupPhase('services-ready')
-        },
-        loadPresentation: () => {
-          presentationPromise ??= loadPresentationPreferences()
-          return presentationPromise
-        },
-        applyPresentation: async (presentation) => {
-          applyPresentationPreferences(presentation)
-          presentationInitialized = true
-          await settingsStore.initLocale()
-          markStartupPhase('locale-settled')
-        },
-        applyPresentationFallback: async () => {
-          await settingsStore.initLocale()
-          markStartupPhase('locale-settled')
-        },
-        deferAfterPresentationError: () =>
-          PLATFORM_CAPABILITIES.requiresAuth && authStore.requiresAuth && !authStore.isAuthenticated,
-        initializeShell: hydrateNavigationLayout,
-        initializeBackground: [
-          {
-            name: 'preferences',
-            run: async () => {
-              try {
-                await initPreferencesSync({
-                  presentationInitialized,
-                  presentationPromise,
-                  hydratePresentationLocale: false,
-                })
-              } finally {
-                markStartupPhase('preferences-settled')
-              }
-            },
-          },
-          {
-            name: 'llm',
-            run: async () => {
-              try {
-                await llmStore.init()
-              } finally {
-                markStartupPhase('llm-settled')
-              }
-            },
-          },
-          {
-            name: 'sessions',
-            run: async () => {
-              try {
-                await sessionStore.loadSessions({ throwOnError: true })
-              } finally {
-                markStartupPhase('sessions-settled')
-              }
-            },
-          },
-        ],
-        listenForPullResults: () => apiServerStore.listenPullResult(),
-      })
-      // 401 会先切换到登录页；不要把这次未认证尝试标记为就绪，登录后由 route watcher 完整重试。
-      if (result.deferred) return
-      unlistenPullResult ??= result.stopListeningForPullResults
-      presentationWarning.value = result.presentationError !== null
-      markStartupPhase('runtime-ready')
-      isRuntimeReady.value = true
-      void result.background.then((failures) => {
-        failures.forEach(({ name, error }) => console.error(`[Startup] Background task failed: ${name}`, error))
-        markStartupPhase('startup-settled')
-      })
-      usePlatformService()
-        .trackDailyActive(settingsStore.locale)
-        .catch(() => {})
-      return
-    }
-
-    const result = await initializeAppRuntime({
-      capabilities: PLATFORM_CAPABILITIES,
+    let presentationPromise: Promise<PresentationPreferences> | undefined
+    let presentationInitialized = false
+    const result = await initializeProgressiveAppRuntime({
       initializeServices: async () => {
         await initServices()
         markStartupPhase('services-ready')
       },
-      initializePreferences: async () => {
-        await initPreferencesSync()
-        markStartupPhase('preferences-settled')
+      loadPresentation: () => {
+        presentationPromise ??= loadPresentationPreferences()
+        return presentationPromise
       },
-      initializeLocale: async () => {
+      applyPresentation: async (presentation) => {
+        applyPresentationPreferences(presentation)
+        presentationInitialized = true
         await settingsStore.initLocale()
         markStartupPhase('locale-settled')
       },
-      initializeLlm: async () => {
-        await llmStore.init()
-        markStartupPhase('llm-settled')
+      applyPresentationFallback: async () => {
+        await settingsStore.initLocale()
+        markStartupPhase('locale-settled')
       },
-      loadSessions: async () => {
-        await sessionStore.loadSessions()
-        markStartupPhase('sessions-settled')
-      },
+      initializeShell: hydrateNavigationLayout,
+      initializeBackground: [
+        {
+          name: 'preferences',
+          run: async () => {
+            try {
+              await initPreferencesSync({
+                presentationInitialized,
+                presentationPromise,
+                hydratePresentationLocale: false,
+              })
+            } finally {
+              markStartupPhase('preferences-settled')
+            }
+          },
+        },
+        {
+          name: 'llm',
+          run: async () => {
+            try {
+              await llmStore.init()
+            } finally {
+              markStartupPhase('llm-settled')
+            }
+          },
+        },
+        {
+          name: 'sessions',
+          run: async () => {
+            try {
+              await sessionStore.loadSessions({ throwOnError: true })
+            } finally {
+              markStartupPhase('sessions-settled')
+            }
+          },
+        },
+      ],
       listenForPullResults: () => apiServerStore.listenPullResult(),
     })
     unlistenPullResult ??= result.stopListeningForPullResults
+    presentationWarning.value = result.presentationError !== null
     markStartupPhase('runtime-ready')
     isRuntimeReady.value = true
-    markStartupPhase('startup-settled')
+    void result.background.then((failures) => {
+      failures.forEach(({ name, error }) => console.error(`[Startup] Background task failed: ${name}`, error))
+      markStartupPhase('startup-settled')
+    })
     usePlatformService()
       .trackDailyActive(settingsStore.locale)
       .catch(() => {})
@@ -314,14 +271,6 @@ function handleGlobalKeydown(e: KeyboardEvent) {
     return
   }
 }
-
-// After login success, route changes from login → app; trigger init
-watch(isLoginPage, (isLogin) => {
-  if (!isLogin) {
-    prepareStartupPlayback()
-    initializeApp()
-  }
-})
 
 watch(
   () => layoutStore.showSettings,
@@ -382,23 +331,7 @@ onMounted(async () => {
     if (ep) {
       configureHttpClient({ baseUrl: `${ep.baseUrl}/_web`, token: ep.token })
     }
-  } else if (PLATFORM_CAPABILITIES.usesCliWebHttp) {
-    // CLI Web: use relative paths + dynamic token from auth store
-    let redirectingTo401 = false
-    const on401 = () => {
-      if (redirectingTo401 || router.currentRoute.value.name === 'login') return
-      redirectingTo401 = true
-      authStore.requireLogin()
-      const currentPath = router.currentRoute.value.fullPath
-      const redirect = currentPath.startsWith('/login') ? '/' : currentPath
-      router.push({ name: 'login', query: { redirect } }).finally(() => {
-        redirectingTo401 = false
-      })
-    }
-    configureHttpClient({ getToken: () => authStore.token, on401 })
   }
-
-  if (isLoginPage.value) return
 
   prepareStartupPlayback()
   await initializeApp()
@@ -415,67 +348,59 @@ onUnmounted(() => {
 
 <template>
   <UApp :tooltip="tooltip" :toaster="toaster">
-    <template v-if="isLoginPage">
-      <router-view />
-    </template>
-    <template v-else>
-      <!-- 自定义标题栏 - 拖拽区域 + 窗口控制按钮 -->
-      <TitleBar v-if="IS_ELECTRON" />
-      <div class="relative flex h-screen w-full overflow-hidden bg-page-bg dark:bg-page-dark">
-        <!-- 运行时就绪后先在启动屏下挂载真实界面，利用动画时间完成布局和页面预热。 -->
-        <div
-          v-if="startupPresentation.mountShell"
-          class="flex min-w-0 flex-1 overflow-hidden"
-          :inert="!isStartupCoverHidden"
-          :aria-hidden="!isStartupCoverHidden ? 'true' : undefined"
-        >
-          <Sidebar :backend-features="true" />
-          <main class="relative flex-1 overflow-hidden" :class="{ 'startup-page-entering': isStartupPageEntering }">
-            <div
-              v-if="presentationWarning"
-              class="absolute inset-x-3 top-3 z-30 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 shadow-sm dark:border-amber-800 dark:bg-amber-950/80 dark:text-amber-200"
-              role="status"
-            >
-              {{ t('common.presentationFallback') }}
-            </div>
-            <router-view v-slot="{ Component }">
-              <Transition name="page-fade" mode="out-in">
-                <component :is="Component" :key="pageTransitionKey" />
-              </Transition>
-            </router-view>
-          </main>
-          <DebugToolsPanel v-if="settingsStore.debugMode" />
-        </div>
-
-        <Transition
-          name="startup-cover"
-          @before-leave="handleStartupCoverBeforeLeave"
-          @after-leave="handleStartupCoverHidden"
-        >
+    <!-- 自定义标题栏 - 拖拽区域 + 窗口控制按钮 -->
+    <TitleBar v-if="IS_ELECTRON" />
+    <div class="relative flex h-screen w-full overflow-hidden bg-page-bg dark:bg-page-dark">
+      <!-- 运行时就绪后先在启动屏下挂载真实界面，利用动画时间完成布局和页面预热。 -->
+      <div
+        v-if="startupPresentation.mountShell"
+        class="flex min-w-0 flex-1 overflow-hidden"
+        :inert="!isStartupCoverHidden"
+        :aria-hidden="!isStartupCoverHidden ? 'true' : undefined"
+      >
+        <Sidebar :backend-features="true" />
+        <main class="relative flex-1 overflow-hidden" :class="{ 'startup-page-entering': isStartupPageEntering }">
           <div
-            v-if="startupPresentation.showCover"
-            class="absolute inset-0 z-40 flex items-center justify-center bg-page-bg dark:bg-page-dark"
+            v-if="presentationWarning"
+            class="absolute inset-x-3 top-3 z-30 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 shadow-sm dark:border-amber-800 dark:bg-amber-950/80 dark:text-amber-200"
+            role="status"
           >
-            <div
-              v-if="startupPresentation.showError"
-              class="flex flex-col items-center justify-center gap-3 text-center"
-            >
-              <UiIcon name="i-heroicons-exclamation-triangle" class="h-8 w-8 text-red-500" />
-              <p class="text-sm text-gray-700 dark:text-gray-300">{{ t('common.initFailed') }}</p>
-              <p class="max-w-sm text-xs text-gray-500">{{ initError }}</p>
-              <UiButton size="sm" variant="soft" @click="initializeApp">
-                {{ t('common.retry') }}
-              </UiButton>
-            </div>
-            <StartupLoading
-              v-else
-              :waiting="startupPresentation.showWaitingIndicator"
-              @complete="handleStartupAnimationComplete"
-            />
+            {{ t('common.presentationFallback') }}
           </div>
-        </Transition>
+          <router-view v-slot="{ Component }">
+            <Transition name="page-fade" mode="out-in">
+              <component :is="Component" :key="pageTransitionKey" />
+            </Transition>
+          </router-view>
+        </main>
+        <DebugToolsPanel v-if="settingsStore.debugMode" />
       </div>
-    </template>
+
+      <Transition
+        name="startup-cover"
+        @before-leave="handleStartupCoverBeforeLeave"
+        @after-leave="handleStartupCoverHidden"
+      >
+        <div
+          v-if="startupPresentation.showCover"
+          class="absolute inset-0 z-40 flex items-center justify-center bg-page-bg dark:bg-page-dark"
+        >
+          <div v-if="startupPresentation.showError" class="flex flex-col items-center justify-center gap-3 text-center">
+            <UiIcon name="i-heroicons-exclamation-triangle" class="h-8 w-8 text-red-500" />
+            <p class="text-sm text-gray-700 dark:text-gray-300">{{ t('common.initFailed') }}</p>
+            <p class="max-w-sm text-xs text-gray-500">{{ initError }}</p>
+            <UiButton size="sm" variant="soft" @click="initializeApp">
+              {{ t('common.retry') }}
+            </UiButton>
+          </div>
+          <StartupLoading
+            v-else
+            :waiting="startupPresentation.showWaitingIndicator"
+            @complete="handleStartupAnimationComplete"
+          />
+        </div>
+      </Transition>
+    </div>
     <ScreenCaptureModal
       v-if="layoutStore.showScreenCaptureModal || layoutStore.screenCaptureImage"
       :open="layoutStore.showScreenCaptureModal"
@@ -488,8 +413,7 @@ onUnmounted(() => {
     <ChatRecordDrawer v-if="layoutStore.showChatRecordDrawer || layoutStore.chatRecordQuery" />
     <!-- 全局 AI 后台任务条：允许用户离开当前页面后仍然快速返回进行中的对话。 -->
     <GlobalTaskBar />
-    <!-- Desktop 与 CLI Web 迁移后都提醒人工清理。 -->
-    <DataDirCleanupNotice v-if="!isLoginPage && isStartupCoverHidden" />
+    <DataDirCleanupNotice v-if="isStartupCoverHidden" />
     <!-- 原生模态锁屏：锁定后由浏览器 top layer 隔离全部底层操作 -->
     <LockScreen v-if="IS_ELECTRON" @ready="markLockScreenReady" @lock-state-change="updateLockState" />
     <Teleport v-if="IS_ELECTRON" to="body">

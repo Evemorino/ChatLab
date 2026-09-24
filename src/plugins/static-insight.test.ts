@@ -36,7 +36,7 @@ function createHost(services: UiServiceRegistry): UiHostContext & { locale: Plug
 const descriptor: StaticInsightPluginDescriptor = {
   plugin: {
     id: 'test.static-insight',
-    platforms: ['cli-web'],
+    platforms: ['electron'],
     activate(context) {
       context.locale.register('plugins.test.static-insight', localeMessages)
       context.pages.register({
@@ -57,7 +57,7 @@ const descriptor: StaticInsightPluginDescriptor = {
 test('uses one static descriptor for plugin contributions and UI services', async () => {
   const services = new UiServiceRegistry()
   const uiHost = createHost(services)
-  const runtime = createStaticInsightPluginRuntime('cli-web', uiHost, uiHost.locale, [descriptor])
+  const runtime = createStaticInsightPluginRuntime('electron', uiHost, uiHost.locale, [descriptor])
   await installStaticInsightPluginUiServices([descriptor], runtime, services)
 
   assert.equal(runtime.getPage('test-page')?.id, 'test-page')
@@ -73,7 +73,7 @@ test('uses one static descriptor for plugin contributions and UI services', asyn
 test('removing a static descriptor removes both contributions and its service installer', async () => {
   const services = new UiServiceRegistry()
   const uiHost = createHost(services)
-  const runtime = createStaticInsightPluginRuntime('cli-web', uiHost, uiHost.locale, [])
+  const runtime = createStaticInsightPluginRuntime('electron', uiHost, uiHost.locale, [])
   await installStaticInsightPluginUiServices([], runtime, services)
 
   assert.equal(runtime.getPage('test-page'), undefined)
@@ -86,7 +86,7 @@ test('rolls back only the plugin whose UI service installation fails', async () 
   const otherDescriptor: StaticInsightPluginDescriptor = {
     plugin: {
       id: 'test.other-insight',
-      platforms: ['cli-web'],
+      platforms: ['electron'],
       activate(context) {
         context.pages.register({
           id: 'other-page',
@@ -105,7 +105,7 @@ test('rolls back only the plugin whose UI service installation fails', async () 
   const brokenDescriptor: StaticInsightPluginDescriptor = {
     plugin: {
       id: 'test.broken-insight',
-      platforms: ['cli-web'],
+      platforms: ['electron'],
       activate(context) {
         context.pages.register({
           id: 'broken-page',
@@ -123,7 +123,7 @@ test('rolls back only the plugin whose UI service installation fails', async () 
     },
   }
   const descriptors = [otherDescriptor, brokenDescriptor]
-  const runtime = createStaticInsightPluginRuntime('cli-web', uiHost, uiHost.locale, descriptors)
+  const runtime = createStaticInsightPluginRuntime('electron', uiHost, uiHost.locale, descriptors)
 
   await assert.rejects(
     () => installStaticInsightPluginUiServices(descriptors, runtime, services),

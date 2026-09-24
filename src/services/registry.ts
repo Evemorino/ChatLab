@@ -1,34 +1,11 @@
 /**
- * Service Registry — 平台检测与 Adapter 实例管理
+ * Service Registry — Desktop Adapter 实例管理
  *
- * 应用启动时调用 initServices()，根据运行平台创建并注册
- * 各领域 Adapter。各 useXxxService() composable 通过
- * getAdapter<T>(key) 获取已注册的实例。
+ * 应用启动时调用 initServices()，创建并注册各领域 Adapter。
+ * 各 useXxxService() composable 通过 getAdapter<T>(key) 获取已注册的实例。
  */
 
-import { IS_ELECTRON, IS_WEB_WASM } from '@/utils/platform'
 import { fetchWithAuth } from './utils/http'
-
-export type Platform = 'electron' | 'cli-web' | 'web-wasm'
-
-export interface PlatformFlags {
-  isElectron: boolean
-  isWebWasm: boolean
-}
-
-interface ServiceAdapterRegistrar {
-  register(key: string, adapter: unknown): void
-}
-
-export interface InitServicesOptions {
-  initializeWebWasm?: (registry: ServiceAdapterRegistrar) => void | Promise<void>
-}
-
-export function detectPlatform(flags: PlatformFlags = { isElectron: IS_ELECTRON, isWebWasm: IS_WEB_WASM }): Platform {
-  if (flags.isElectron) return 'electron'
-  if (flags.isWebWasm) return 'web-wasm'
-  return 'cli-web'
-}
 
 const adapters = new Map<string, unknown>()
 let _initialized = false
@@ -53,34 +30,19 @@ export function isInitialized(): boolean {
  * 初始化所有 Service Adapter。
  * 应用启动时调用一次（App.vue 或 main.ts）。
  */
-export async function initServices(options: InitServicesOptions = {}): Promise<void> {
+export async function initServices(): Promise<void> {
   if (_initialized) return
 
-  // Keep compile-time flags in this branch so each build drops adapters for
-  // the other platforms instead of shipping their runtime dependencies.
-  if (IS_WEB_WASM) {
-    await initializeWebWasmServices(options.initializeWebWasm)
-  } else if (IS_ELECTRON) {
-    await initElectronAdapters()
-  } else {
-    await initCliWebAdapters()
-  }
+  await initDesktopAdapters()
 
   _initialized = true
 }
 
-export async function initializeWebWasmServices(initialize: InitServicesOptions['initializeWebWasm']): Promise<void> {
-  if (!initialize) {
-    throw new Error('[services] Web WASM initializer is required')
-  }
-  await initialize({ register: registerAdapter })
-}
-
 /**
- * Electron adapters: Internal HTTP Server is a hard dependency.
+ * Desktop adapters: the Internal HTTP Server is a hard dependency.
  * data/message/preferences/ai-streaming use Fetch/SSE; import stays on IPC.
  */
-async function initElectronAdapters(): Promise<void> {
+async function initDesktopAdapters(): Promise<void> {
   const [
     { FetchDataAdapter },
     { ElectronPlatformAdapter },
@@ -130,80 +92,17 @@ async function initElectronAdapters(): Promise<void> {
   registerAdapter('cache', new FetchCacheAdapter())
   registerAdapter('navigation-layout', new FetchNavigationLayoutAdapter())
 
-  installMergeShims('electron')
-}
-
-async function initCliWebAdapters(): Promise<void> {
-  const [
-    { FetchDataAdapter },
-    { CliWebPlatformAdapter },
-    { FetchImportAdapter },
-    { TelemetryImportAdapter },
-    { FetchSessionIndexAdapter },
-    { FetchMessageAdapter },
-    { FetchChatTopicsAdapter },
-    { FetchAIAdapter },
-    { FetchPreferencesAdapter },
-    { FetchLLMAdapter },
-    { FetchAssistantAdapter },
-    { FetchSkillAdapter },
-    { FetchCacheAdapter },
-    { FetchNavigationLayoutAdapter },
-  ] = await Promise.all([
-    import('./data/fetch'),
-    import('./platform/cli-web'),
-    import('./import/fetch'),
-    import('./import/telemetry'),
-    import('./session-index/fetch'),
-    import('./message/fetch'),
-    import('./chat-topics/fetch'),
-    import('./ai/fetch'),
-    import('./preferences/fetch'),
-    import('./llm/fetch'),
-    import('./assistant/fetch'),
-    import('./skill/fetch'),
-    import('./cache/fetch'),
-    import('./navigation-layout/fetch'),
-  ])
-
-  registerAdapter('data', new FetchDataAdapter())
-
-  const platformAdapter = new CliWebPlatformAdapter()
-  registerAdapter('platform', platformAdapter)
-
-  registerAdapter('import', new TelemetryImportAdapter(new FetchImportAdapter(), platformAdapter))
-  registerAdapter('session-index', new FetchSessionIndexAdapter())
-  registerAdapter('message', new FetchMessageAdapter())
-  registerAdapter('chat-topics', new FetchChatTopicsAdapter())
-  registerAdapter('ai', new FetchAIAdapter())
-  registerAdapter('preferences', new FetchPreferencesAdapter())
-  registerAdapter('llm', new FetchLLMAdapter())
-  registerAdapter('assistant-crud', new FetchAssistantAdapter())
-  registerAdapter('skill-crud', new FetchSkillAdapter())
-  registerAdapter('cache', new FetchCacheAdapter())
-  registerAdapter('navigation-layout', new FetchNavigationLayoutAdapter())
-
-  await installCliWebShims()
-}
-
-/**
- * Install remaining window shims for CLI Web.
- * AI streaming shims have been removed — the service layer now
- * uses fetchSSE directly via useAgentStreamService/useLlmStreamService.
- */
-async function installCliWebShims(): Promise<void> {
-  installMergeShims('cli-web')
+  installMergeShims()
 }
 
 /**
  * Install merge-related window shims.
  *
- * Both Electron and CLI Web use the same HTTP merge routes. The shim
- * maintains a filePath→handle Map so that existing frontend code
+ * The shim maintains a filePath→handle Map so that existing frontend code
  * (session.ts, BatchManageTab.vue) can continue calling with filePaths
  * while the HTTP layer operates with UUID handles.
  */
-function installMergeShims(platform: 'electron' | 'cli-web'): void {
+function installMergeShims(): void {
   const pathToHandle = new Map<string, string>()
 
   const isHandle = (v: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v)
@@ -257,20 +156,16 @@ function installMergeShims(platform: 'electron' | 'cli-web'): void {
         return { name: '', format: '', platform: '', messageCount: 0, memberCount: 0, fileSize: 0 }
       }
 
-      if (platform === 'electron') {
-        const resp = await fetchWithAuth('/_web/merge/parse', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ filePath }),
-        })
-        await ensureOk(resp, 'parseFileInfo')
-        const result = await resp.json()
-        if (!result.handle) throw new Error('Parse succeeded but no handle returned')
-        pathToHandle.set(filePath, result.handle)
-        return result
-      }
-
-      return { name: '', format: '', platform: '', messageCount: 0, memberCount: 0, fileSize: 0 }
+      const resp = await fetchWithAuth('/_web/merge/parse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filePath }),
+      })
+      await ensureOk(resp, 'parseFileInfo')
+      const result = await resp.json()
+      if (!result.handle) throw new Error('Parse succeeded but no handle returned')
+      pathToHandle.set(filePath, result.handle)
+      return result
     },
 
     checkConflicts: async (filePaths: string[]) => {

@@ -8,9 +8,7 @@ ChatLab defines a standard chat record data exchange format to support unified i
 
 As long as you convert your chat records to this format, ChatLab can parse and analyze them.
 
-::: warning Notice
-This format specification is still in its early development stage. Some fields and structures may be adjusted in future versions.
-:::
+::: warning Notice This format specification is still in its early development stage. Some fields and structures may be adjusted in future versions. :::
 
 ## Overview
 
@@ -80,13 +78,13 @@ Here's a **minimal** ChatLab format example with only required fields:
 
 ### Metadata (meta)
 
-| Field         | Type   | Required | Description                                                         |
-| ------------- | ------ | -------- | ------------------------------------------------------------------- |
-| `name`        | string | ✅       | Group name or conversation name                                     |
+| Field         | Type   | Required | Description                                                        |
+| ------------- | ------ | -------- | ------------------------------------------------------------------ |
+| `name`        | string | ✅       | Group name or conversation name                                    |
 | `platform`    | string | ✅       | Platform identifier: `qq` / `discord` / `whatsapp` / `slack`, etc. |
-| `type`        | string | ✅       | Chat type: `group` / `private`                                      |
-| `groupId`     | string | -        | Group ID (group chat only)                                          |
-| `groupAvatar` | string | -        | Group avatar (Data URL format)                                      |
+| `type`        | string | ✅       | Chat type: `group` / `private`                                     |
+| `groupId`     | string | -        | Group ID (group chat only)                                         |
+| `groupAvatar` | string | -        | Group avatar (Data URL format)                                     |
 
 ### Members (members)
 
@@ -113,9 +111,7 @@ Here's a **minimal** ChatLab format example with only required fields:
 
 ## Message Type Reference
 
-::: warning Tip
-If you have other special types in your chat records that need support, please submit an issue explaining your situation. We'll evaluate whether to add them to the standard message types.
-:::
+::: warning Tip If you have other special types in your chat records that need support, please submit an issue explaining your situation. We'll evaluate whether to add them to the standard message types. :::
 
 ### Basic Message Types (0-19)
 
@@ -166,9 +162,7 @@ Supported image formats:
 - `image/gif` - GIF format
 - `image/webp` - WebP format
 
-::: tip Suggestion
-When exporting, we recommend compressing avatars to 100×100 pixels or less to reduce file size.
-:::
+::: tip Suggestion When exporting, we recommend compressing avatars to 100×100 pixels or less to reduce file size. :::
 
 ## Complete Examples
 
@@ -304,19 +298,9 @@ JSONL (JSON Lines) format is suitable for **very large chat records** (>1 millio
 - Each line must be **valid JSON** (cannot span lines)
 - Lines are separated by newline `\n` :::
 
-## Validate converted output
-
-The ChatLab CLI can strictly validate JSON/JSONL without importing or writing to the database. It checks malformed lines, protocol version, required fields, second-based timestamps, member references, message types, message IDs, and reply relationships without printing message bodies:
-
-```bash
-clb validate "/absolute/path/to/converted.jsonl" --json
-```
-
-After validation passes, use `clb import <file> --dry-run --json` to confirm ChatLab can fully recognize the file.
-
 ## Version History
 
-| Version | Date    | Changes         |
-| ------- | ------- | --------------- |
-| 0.0.1   | 2025-12 | Initial version |
+| Version | Date    | Changes                                                            |
+| ------- | ------- | ------------------------------------------------------------------ |
+| 0.0.1   | 2025-12 | Initial version                                                    |
 | 0.0.2   | 2026-01 | Added roles, owner and message identity fields; added JSONL format |

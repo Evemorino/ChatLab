@@ -30,6 +30,6 @@ ChatLab 先把聊天记录整理成结构化数据，提问时只取出真正相
 ## 如何使用ChatLab提供的AI能力？
 
 - **[内置 AI](/cn/ai/chatlab-ai)**：在 ChatLab 应用内配置一个 AI 模型，直接提问和分析。适合想开箱即用的人。
-- **[外部 AI Agent](/cn/ai/external-agent)**：安装 ChatLab CLI 和官方 Skill，让 Codex、Claude Code 等 Agent 查询你的聊天记录。适合已有常用 Agent、想复用现有工作流的人。
+- **外部 AI Agent**：在桌面端「设置 → MCP」生成接入配置，把 ChatLab 的只读数据工具挂给 Claude Code、Codex 等支持 MCP 的 Agent。适合已有常用 Agent、想复用现有工作流的人。
 
 两种方式用的都是已导入 ChatLab 的记录，**默认都经过数据脱敏和黑名单过滤**。

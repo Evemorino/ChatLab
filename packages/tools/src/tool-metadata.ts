@@ -127,6 +127,8 @@ export const ENGLISH_TOOL_METADATA: Record<string, EnglishToolMetadata> = {
     properties: {
       days: 'Number of most recent days of data to analyze. Defaults to 30.',
       top_n: 'Number of top-ranked members to return. Defaults to 10.',
+      start_time: 'Start time in YYYY-MM-DD HH:mm format.',
+      end_time: 'End time in YYYY-MM-DD HH:mm format.',
     },
   },
   keyword_frequency: {
@@ -135,6 +137,8 @@ export const ENGLISH_TOOL_METADATA: Record<string, EnglishToolMetadata> = {
     properties: {
       days: 'Number of most recent days of data to analyze. Defaults to 30.',
       top_n: 'Number of top frequent words to return. Defaults to 50.',
+      start_time: 'Start time in YYYY-MM-DD HH:mm format.',
+      end_time: 'End time in YYYY-MM-DD HH:mm format.',
     },
   },
   semantic_search_current_chat: {

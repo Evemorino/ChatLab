@@ -6,10 +6,7 @@ const enSidebar: DefaultTheme.SidebarItem[] = [
   { text: 'Quick Start', link: '/usage/quick-start' },
   {
     text: 'Installation & Deployment',
-    items: [
-      { text: 'Install ChatLab', link: '/usage/installation' },
-      { text: 'Docker Deployment', link: '/usage/docker' },
-    ],
+    items: [{ text: 'Install ChatLab', link: '/usage/installation' }],
   },
   {
     text: 'Usage Guide',
@@ -24,14 +21,12 @@ const enSidebar: DefaultTheme.SidebarItem[] = [
     items: [
       { text: 'Why ChatLab', link: '/ai/why-chatlab' },
       { text: 'Analyze with Built-in AI', link: '/ai/chatlab-ai' },
-      { text: 'Analyze with an External AI Agent', link: '/ai/external-agent' },
     ],
   },
   {
     text: 'Integrate with ChatLab',
     items: [
       { text: 'ChatLab Format', link: '/standard/chatlab-format' },
-      { text: 'AI Conversion Guide', link: '/standard/ai-converter' },
       { text: 'ChatLab API', link: '/standard/chatlab-api' },
     ],
   },
@@ -47,10 +42,7 @@ const cnSidebar: DefaultTheme.SidebarItem[] = [
   { text: '快速开始', link: '/cn/usage/quick-start' },
   {
     text: '安装与部署',
-    items: [
-      { text: '安装 ChatLab', link: '/cn/usage/installation' },
-      { text: 'Docker 部署', link: '/cn/usage/docker' },
-    ],
+    items: [{ text: '安装 ChatLab', link: '/cn/usage/installation' }],
   },
   {
     text: '使用指南',
@@ -66,14 +58,12 @@ const cnSidebar: DefaultTheme.SidebarItem[] = [
     items: [
       { text: '为什么选择 ChatLab', link: '/cn/ai/why-chatlab' },
       { text: '使用内置 AI 分析', link: '/cn/ai/chatlab-ai' },
-      { text: '使用外部 AI Agent 分析', link: '/cn/ai/external-agent' },
     ],
   },
   {
     text: '对接 ChatLab',
     items: [
       { text: 'ChatLab Format', link: '/cn/standard/chatlab-format' },
-      { text: 'AI 辅助转换', link: '/cn/standard/ai-converter' },
       { text: 'ChatLab API', link: '/cn/standard/chatlab-api' },
       { text: 'Push 导入协议', link: '/cn/standard/chatlab-import' },
       { text: 'Pull 远程数据源协议', link: '/cn/standard/chatlab-pull' },
@@ -91,10 +81,7 @@ const twSidebar: DefaultTheme.SidebarItem[] = [
   { text: '快速開始', link: '/tw/usage/quick-start' },
   {
     text: '安裝與部署',
-    items: [
-      { text: '安裝 ChatLab', link: '/tw/usage/installation' },
-      { text: 'Docker 部署', link: '/tw/usage/docker' },
-    ],
+    items: [{ text: '安裝 ChatLab', link: '/tw/usage/installation' }],
   },
   {
     text: '使用指南',
@@ -116,7 +103,6 @@ const twSidebar: DefaultTheme.SidebarItem[] = [
     text: '對接 ChatLab',
     items: [
       { text: 'ChatLab Format', link: '/tw/standard/chatlab-format' },
-      { text: 'AI 輔助轉換', link: '/tw/standard/ai-converter' },
       { text: 'ChatLab API', link: '/tw/standard/chatlab-api' },
     ],
   },

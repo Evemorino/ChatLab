@@ -1,17 +1,8 @@
-import type { BrowserCapabilityReport } from '@openchatlab/web-runtime'
 import type { PlatformCapabilities } from '@/utils/platform-capabilities'
-
-export class UnsupportedBrowserCapabilitiesError extends Error {
-  constructor(readonly missing: string[]) {
-    super(`Missing browser capabilities: ${missing.join(', ')}`)
-    this.name = 'UnsupportedBrowserCapabilitiesError'
-  }
-}
 
 export interface AppInitializationPorts {
   capabilities: PlatformCapabilities
   initializeServices(): Promise<void>
-  checkBrowserCapabilities?: () => Promise<BrowserCapabilityReport>
   initializePreferences(): Promise<void>
   initializeLocale(): Promise<void>
   initializeLlm?: () => Promise<void>
@@ -20,7 +11,6 @@ export interface AppInitializationPorts {
 }
 
 export interface AppInitializationResult {
-  browserCapabilities: BrowserCapabilityReport | null
   stopListeningForPullResults: (() => void) | null
 }
 
@@ -29,7 +19,6 @@ export interface ProgressiveInitializationPorts<TPresentation> {
   loadPresentation(): Promise<TPresentation>
   applyPresentation(presentation: TPresentation): Promise<void> | void
   applyPresentationFallback(): Promise<void> | void
-  deferAfterPresentationError?: (error: unknown) => boolean
   initializeShell?: () => Promise<void>
   initializeBackground: Array<{
     name: string
@@ -48,7 +37,6 @@ export interface ProgressiveInitializationResult {
   presentationError: unknown | null
   background: Promise<BackgroundInitializationFailure[]>
   stopListeningForPullResults: (() => void) | null
-  deferred: boolean
 }
 
 class PresentationTimeoutError extends Error {
@@ -87,16 +75,6 @@ export async function initializeProgressiveAppRuntime<TPresentation>(
     await ports.applyPresentation(presentation)
   } catch (error) {
     presentationError = error
-    // 认证等可恢复门禁失败时，不能启动会写入一次性状态的后台任务；
-    // 调用方完成外部恢复后，应重新执行整条初始化链路。
-    if (ports.deferAfterPresentationError?.(error)) {
-      return {
-        presentationError,
-        background: Promise.resolve([]),
-        stopListeningForPullResults: null,
-        deferred: true,
-      }
-    }
     await ports.applyPresentationFallback()
   }
 
@@ -108,20 +86,11 @@ export async function initializeProgressiveAppRuntime<TPresentation>(
     )
   )
 
-  return { presentationError, background, stopListeningForPullResults, deferred: false }
+  return { presentationError, background, stopListeningForPullResults }
 }
 
 export async function initializeAppRuntime(ports: AppInitializationPorts): Promise<AppInitializationResult> {
   await ports.initializeServices()
-
-  let browserCapabilities: BrowserCapabilityReport | null = null
-  if (ports.capabilities.usesBrowserRuntime) {
-    if (!ports.checkBrowserCapabilities) throw new Error('Browser capability checker is required')
-    browserCapabilities = await ports.checkBrowserCapabilities()
-    if (!browserCapabilities.supported) {
-      throw new UnsupportedBrowserCapabilitiesError(browserCapabilities.missing)
-    }
-  }
 
   if (ports.capabilities.loadsPreferences) {
     if (!ports.initializeLocale) throw new Error('Locale initialization port is required')
@@ -142,7 +111,6 @@ export async function initializeAppRuntime(ports: AppInitializationPorts): Promi
   }
 
   return {
-    browserCapabilities,
     stopListeningForPullResults,
   }
 }

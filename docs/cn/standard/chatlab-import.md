@@ -86,16 +86,16 @@ application/json    # 标准 JSON body（≤50MB）
 | 4（兜底） | 一次性导入 | `import_{UUID}` | `import_550e8400-e29b-41d4-a716-446655440000` |
 
 ::: warning 注意
+
 - 不建议使用文件路径作为 sessionId 的输入——文件重命名会导致 sessionId 变化
-- 同一聊天来源的首次导入和增量导入**必须**使用相同的 sessionId
-:::
+- 同一聊天来源的首次导入和增量导入**必须**使用相同的 sessionId :::
 
 ### 请求 Header
 
-| Header | 必填 | 说明 |
-| --- | --- | --- |
-| `Authorization` | 是 | `Bearer <token>` |
-| `Content-Type` | 是 | `application/json` |
+| Header            | 必填 | 说明                                                                                 |
+| ----------------- | ---- | ------------------------------------------------------------------------------------ |
+| `Authorization`   | 是   | `Bearer <token>`                                                                     |
+| `Content-Type`    | 是   | `application/json`                                                                   |
 | `Idempotency-Key` | 建议 | 当前批次的唯一标识，用于重试安全。建议格式：`{sessionId}-{batchIndex}-{windowStart}` |
 
 ### 快速测试
@@ -169,23 +169,21 @@ curl http://127.0.0.1:3110/api/v1/imports/group_abc123 \
 
 ### options 对象（可选）
 
-| 字段 | 类型 | 默认值 | 可选值 | 说明 |
-| --- | --- | --- | --- | --- |
-| `metaUpdateMode` | string | `patch` | `patch` / `none` | `patch`：非空字段覆盖更新；`none`：跳过更新 |
-| `memberUpdateMode` | string | `upsert` | `upsert` / `none` | `upsert`：新增+更新；`none`：跳过更新 |
+| 字段               | 类型   | 默认值   | 可选值            | 说明                                        |
+| ------------------ | ------ | -------- | ----------------- | ------------------------------------------- |
+| `metaUpdateMode`   | string | `patch`  | `patch` / `none`  | `patch`：非空字段覆盖更新；`none`：跳过更新 |
+| `memberUpdateMode` | string | `upsert` | `upsert` / `none` | `upsert`：新增+更新；`none`：跳过更新       |
 
-::: tip 提示
-回填历史数据时建议传 `"metaUpdateMode": "none"` 防止旧群名覆盖当前值。
-:::
+::: tip 提示回填历史数据时建议传 `"metaUpdateMode": "none"` 防止旧群名覆盖当前值。:::
 
 ### 各块携带规则
 
-| 块         | 会话首次创建 | 后续增量导入 | 语义                                                           |
-| ---------- | ------------ | ------------ | -------------------------------------------------------------- |
-| `chatlab`  | 必填         | 可选         | 首次用于创建会话；后续用于版本兼容判断                         |
-| `meta`     | 必填         | 可选         | 首次作为初始值；后续携带则非空字段自动覆盖更新                 |
-| `members`  | 必填         | 可选         | 首次写入全量成员；后续按 `platformId` 做 upsert                |
-| `messages` | 必填         | 必填         | 每批必须包含至少一条消息                                       |
+| 块         | 会话首次创建 | 后续增量导入 | 语义                                            |
+| ---------- | ------------ | ------------ | ----------------------------------------------- |
+| `chatlab`  | 必填         | 可选         | 首次用于创建会话；后续用于版本兼容判断          |
+| `meta`     | 必填         | 可选         | 首次作为初始值；后续携带则非空字段自动覆盖更新  |
+| `members`  | 必填         | 可选         | 首次写入全量成员；后续按 `platformId` 做 upsert |
+| `messages` | 必填         | 必填         | 每批必须包含至少一条消息                        |
 
 **Meta 自动更新规则：**
 
@@ -234,32 +232,30 @@ curl http://127.0.0.1:3110/api/v1/imports/group_abc123 \
 | `slack`    | Slack     |
 | `unknown`  | 未知/其他 |
 
-::: tip 提示
-如果你的平台不在上述列表中，可使用小写英文标识（如 `signal`、`matrix`），ChatLab 会按 `unknown` 的分析策略处理。
-:::
+::: tip 提示如果你的平台不在上述列表中，可使用小写英文标识（如 `signal`、`matrix`），ChatLab 会按 `unknown` 的分析策略处理。:::
 
 #### members 数组元素
 
-| 字段            | 类型   | 必填 | 说明                                   |
-| --------------- | ------ | ---- | -------------------------------------- |
-| `platformId`    | string | 是   | 成员在平台的唯一标识（QQ号、用户ID等） |
-| `accountName`   | string | 建议 | 账号名称（不随群变化的原始昵称）       |
-| `groupNickname` | string | 否   | 群内专属昵称                           |
-| `avatar`        | string | 否   | 头像，base64 Data URL 或网络 URL       |
+| 字段            | 类型   | 必填 | 说明                                                    |
+| --------------- | ------ | ---- | ------------------------------------------------------- |
+| `platformId`    | string | 是   | 成员在平台的唯一标识（QQ号、用户ID等）                  |
+| `accountName`   | string | 建议 | 账号名称（不随群变化的原始昵称）                        |
+| `groupNickname` | string | 否   | 群内专属昵称                                            |
+| `avatar`        | string | 否   | 头像，base64 Data URL 或网络 URL                        |
 | `roles`         | array  | 否   | 角色列表，见 [角色定义](./chatlab-format.md#角色-roles) |
 
 #### messages 数组元素
 
-| 字段                | 类型         | 必填     | 说明                                                                |
-| ------------------- | ------------ | -------- | ------------------------------------------------------------------- |
-| `sender`            | string       | 是       | 发送者的 `platformId` 或保留标识（如 `SYSTEM`） |
-| `timestamp`         | number       | 是       | 消息时间戳，秒级 Unix 时间戳                                        |
-| `type`              | number       | 是       | 消息类型枚举（见 [消息类型](./chatlab-format.md#消息类型对照表)）   |
-| `accountName`       | string       | 建议     | 发送时的账号名称                                                    |
-| `groupNickname`     | string       | 否       | 发送时的群昵称                                                      |
-| `content`           | string\|null | 否       | 纯文本内容，非文本消息可为 null                                     |
-| `platformMessageId` | string       | 强烈建议 | 消息的平台原始 ID，去重的首选依据                                   |
-| `replyToMessageId`  | string       | 否       | 回复目标消息的 `platformMessageId`                                  |
+| 字段                | 类型         | 必填     | 说明                                                              |
+| ------------------- | ------------ | -------- | ----------------------------------------------------------------- |
+| `sender`            | string       | 是       | 发送者的 `platformId` 或保留标识（如 `SYSTEM`）                   |
+| `timestamp`         | number       | 是       | 消息时间戳，秒级 Unix 时间戳                                      |
+| `type`              | number       | 是       | 消息类型枚举（见 [消息类型](./chatlab-format.md#消息类型对照表)） |
+| `accountName`       | string       | 建议     | 发送时的账号名称                                                  |
+| `groupNickname`     | string       | 否       | 发送时的群昵称                                                    |
+| `content`           | string\|null | 否       | 纯文本内容，非文本消息可为 null                                   |
+| `platformMessageId` | string       | 强烈建议 | 消息的平台原始 ID，去重的首选依据                                 |
+| `replyToMessageId`  | string       | 否       | 回复目标消息的 `platformMessageId`                                |
 
 **sender 字段规则：**
 
@@ -297,19 +293,19 @@ curl http://127.0.0.1:3110/api/v1/imports/group_abc123 \
 }
 ```
 
-| 字段                     | 说明                                                  |
-| ------------------------ | ----------------------------------------------------- |
-| `created`                | `true` 表示本次请求触发了会话创建（首次导入）         |
-| `batch.receivedCount`    | 本批收到的消息条数                                    |
-| `batch.writtenCount`     | 实际写入的条数                                        |
-| `batch.duplicateCount`   | 因去重跳过的条数                                      |
-| `session.totalCount`     | 写入后会话的累计消息总数                              |
-| `session.memberCount`    | 会话的成员总数                                        |
-| `session.firstTimestamp` | 会话内最早消息时间戳                                  |
-| `session.lastTimestamp`  | 会话内最新消息时间戳                                  |
-| `updates.metaUpdated`    | 本次请求是否触发了 meta 更新                          |
-| `updates.membersAdded`   | 本次新增的成员数                                      |
-| `updates.membersUpdated` | 本次更新的成员数                                      |
+| 字段                     | 说明                                          |
+| ------------------------ | --------------------------------------------- |
+| `created`                | `true` 表示本次请求触发了会话创建（首次导入） |
+| `batch.receivedCount`    | 本批收到的消息条数                            |
+| `batch.writtenCount`     | 实际写入的条数                                |
+| `batch.duplicateCount`   | 因去重跳过的条数                              |
+| `session.totalCount`     | 写入后会话的累计消息总数                      |
+| `session.memberCount`    | 会话的成员总数                                |
+| `session.firstTimestamp` | 会话内最早消息时间戳                          |
+| `session.lastTimestamp`  | 会话内最新消息时间戳                          |
+| `updates.metaUpdated`    | 本次请求是否触发了 meta 更新                  |
+| `updates.membersAdded`   | 本次新增的成员数                              |
+| `updates.membersUpdated` | 本次更新的成员数                              |
 
 ---
 
@@ -320,21 +316,20 @@ curl http://127.0.0.1:3110/api/v1/imports/group_abc123 \
 **优先级：**
 
 1. 若消息提供了 `platformMessageId`，以此作为唯一键去重（高精度，推荐）。
-2. 若未提供 `platformMessageId`，退化为确定性 fallback key：
-   `timestamp + sender + type + normalizedContent + replyToMessageId`。
+2. 若未提供 `platformMessageId`，退化为确定性 fallback key： `timestamp + sender + type + normalizedContent + replyToMessageId`。
 
-| 层次               | 机制                                            | 适用范围                      | 精度     |
-| ------------------ | ----------------------------------------------- | ----------------------------- | -------- |
-| 请求级幂等         | `Idempotency-Key`                               | 同一 HTTP 请求的重试          | 精确     |
-| 消息级去重（主键） | `platformMessageId`                             | 跨批次、跨窗口的同一条消息    | 精确     |
-| 消息级去重（降级） | 上述字段生成的确定性 fallback key                 | 无 platformMessageId 时的兜底 | 最大努力 |
+| 层次               | 机制                              | 适用范围                      | 精度     |
+| ------------------ | --------------------------------- | ----------------------------- | -------- |
+| 请求级幂等         | `Idempotency-Key`                 | 同一 HTTP 请求的重试          | 精确     |
+| 消息级去重（主键） | `platformMessageId`               | 跨批次、跨窗口的同一条消息    | 精确     |
+| 消息级去重（降级） | 上述字段生成的确定性 fallback key | 无 platformMessageId 时的兜底 | 最大努力 |
 
 ::: warning 注意
+
 - 同一 `platformMessageId` 的消息不会被重复写入，即使 content 不同（以首次写入为准）
 - 两个不同的 `platformMessageId` 即使其他字段完全相同，也会保留为两条消息
 - fallback 去重在"同一人、同一秒、相同类型、相同规范化内容和相同回复目标"时判定为重复，存在极小概率误判
-- **强烈建议**外部数据源提供 `platformMessageId`，这是最可靠的去重依据
-:::
+- **强烈建议**外部数据源提供 `platformMessageId`，这是最可靠的去重依据 :::
 
 ---
 
@@ -344,8 +339,8 @@ curl http://127.0.0.1:3110/api/v1/imports/group_abc123 \
 
 每批建议 **5000 条消息**。
 
-| 约束               | 值           | 说明                            |
-| ------------------ | ------------ | ------------------------------- |
+| 约束               | 值      | 说明                            |
+| ------------------ | ------- | ------------------------------- |
 | JSON body 大小上限 | 50MB    | 超过返回 `BODY_TOO_LARGE` (413) |
 | 建议每批消息数     | 5000 条 | 兼顾性能和内存占用              |
 
@@ -436,17 +431,17 @@ ChatLab 不为调用方维护游标。推荐结构：
 
 ## 错误码与重试策略
 
-| 错误码 | HTTP 状态 | 说明 | 可重试 |
-| --- | --- | --- | --- |
-| `UNAUTHORIZED` | 401 | Token 无效或缺失 | 否 |
-| `INVALID_FORMAT` | 400 | Content-Type 不支持或请求体格式错误 | 否 |
-| `INVALID_PAYLOAD` | 400 | 必填字段缺失、类型错误或校验失败 | 否 |
-| `BODY_TOO_LARGE` | 413 | JSON body 超过 50MB | 否 |
-| `IMPORT_IN_PROGRESS` | 409 | 当前有其他导入正在执行 | 是 |
-| `IDEMPOTENCY_CONFLICT` | 409 | 相同幂等键但请求体不一致 | 否 |
-| `IDEMPOTENCY_PENDING` | 409 | 相同幂等键的首次请求仍在执行 | 是 |
-| `IMPORT_FAILED` | 500 | 导入过程内部错误 | 是 |
-| `SERVER_ERROR` | 500 | 服务内部错误 | 是 |
+| 错误码                 | HTTP 状态 | 说明                                | 可重试 |
+| ---------------------- | --------- | ----------------------------------- | ------ |
+| `UNAUTHORIZED`         | 401       | Token 无效或缺失                    | 否     |
+| `INVALID_FORMAT`       | 400       | Content-Type 不支持或请求体格式错误 | 否     |
+| `INVALID_PAYLOAD`      | 400       | 必填字段缺失、类型错误或校验失败    | 否     |
+| `BODY_TOO_LARGE`       | 413       | JSON body 超过 50MB                 | 否     |
+| `IMPORT_IN_PROGRESS`   | 409       | 当前有其他导入正在执行              | 是     |
+| `IDEMPOTENCY_CONFLICT` | 409       | 相同幂等键但请求体不一致            | 否     |
+| `IDEMPOTENCY_PENDING`  | 409       | 相同幂等键的首次请求仍在执行        | 是     |
+| `IMPORT_FAILED`        | 500       | 导入过程内部错误                    | 是     |
+| `SERVER_ERROR`         | 500       | 服务内部错误                        | 是     |
 
 **重试策略建议：**
 

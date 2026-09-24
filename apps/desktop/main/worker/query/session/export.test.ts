@@ -11,7 +11,7 @@ import { exportFilterResultToFile } from './export'
 test('closes the export database after writing the file', () => {
   const outputDir = fs.mkdtempSync(path.join(process.env.CHATLAB_TEST_TMPDIR ?? os.tmpdir(), 'chatlab-desktop-export-'))
   const rawDb = new Database(':memory:', {
-    nativeBinding: path.resolve('apps/cli/native/better_sqlite3.node'),
+    nativeBinding: path.resolve('native/better_sqlite3.node'),
   })
   rawDb.exec(CHAT_DB_SCHEMA)
   rawDb.exec(`

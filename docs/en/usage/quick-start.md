@@ -4,17 +4,17 @@ outline: deep
 
 # Quick Start
 
-If ChatLab is not installed yet, see [Install ChatLab](/usage/installation) or [Docker Deployment](/usage/docker) first.
+If ChatLab is not installed yet, see [Install ChatLab](/usage/installation) first.
 
 ## Step 1: Import chat records
 
 ChatLab supports three ways to bring in your chat records:
 
-| Method | When to use |
-|--------|-------------|
+| Method          | When to use                                                                                      |
+| --------------- | ------------------------------------------------------------------------------------------------ |
 | **File import** | Drag an exported file straight into the ChatLab home screen — the simplest option for most users |
-| **Auto sync** | Connect an external data source and let ChatLab sync new messages on a schedule |
-| **API push** | Open ChatLab's local API so external tools or scripts can push records in directly |
+| **Auto sync**   | Connect an external data source and let ChatLab sync new messages on a schedule                  |
+| **API push**    | Open ChatLab's local API so external tools or scripts can push records in directly               |
 
 ### Regular users
 

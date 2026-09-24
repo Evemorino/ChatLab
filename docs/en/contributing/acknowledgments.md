@@ -42,7 +42,7 @@ He sent a single message:
 
 > done
 
-No conditions. No payment. No strings attached. He even said, unprompted, twice: *"If you need help with the project down the road, just ask."*
+No conditions. No payment. No strings attached. He even said, unprompted, twice: _"If you need help with the project down the road, just ask."_
 
 Leo had no idea what ChatLab was, and nothing to gain from the transfer. He just thought an active open-source project deserved the name more than an abandoned one.
 

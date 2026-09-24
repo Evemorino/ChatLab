@@ -1,5 +1,5 @@
 /**
- * Safe config field writer for `clb config set`.
+ * Safe config field writer for runtime settings changes.
  *
  * Wraps writeConfigField with guardrails: only schema-defined keys are accepted,
  * values are parsed by schema type, and the file is validated after writing with
@@ -31,7 +31,7 @@ export interface ConfigSetResult {
 }
 
 /**
- * Set a config field addressed as `<section>.<key>` (e.g. `cli.allow_raw`).
+ * Set a config field addressed as `<section>.<key>` (e.g. `desktop.close_behavior`).
  * Throws ConfigSetError without touching the file when the key or value is invalid;
  * rolls the file back when the written config fails full validation.
  */

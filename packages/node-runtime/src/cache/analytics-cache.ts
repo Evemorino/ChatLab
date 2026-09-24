@@ -9,8 +9,8 @@
  * Any write to the chat DB (import, incremental import, member merge/rename,
  * owner change, summary generation) changes the file and thus the fingerprint,
  * forcing a recompute. This makes the cache self-validating even across
- * processes — e.g. when `clb web` is serving while a separate
- * `clb import` mutates the same database file.
+ * processes — e.g. when the desktop app imports while a separate MCP server
+ * process reads the same session databases.
  */
 
 import * as fs from 'fs'

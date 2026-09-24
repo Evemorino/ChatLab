@@ -7,7 +7,6 @@
  */
 
 import { post } from './utils/http'
-import { IS_WEB_WASM } from '@/utils/platform'
 
 export interface FrontendRuntimeLogEvent {
   level: 'debug' | 'info' | 'error'
@@ -37,7 +36,6 @@ export function reportError(message: string, stack?: string): void {
   if (!message) return
   const key = `${message}::${stack?.split('\n')[1] ?? ''}`
   if (!shouldReport(key)) return
-  if (IS_WEB_WASM) return
   // Fire-and-forget; never let reporting throw or block the UI.
   void post('/logs/report', {
     level: 'error',

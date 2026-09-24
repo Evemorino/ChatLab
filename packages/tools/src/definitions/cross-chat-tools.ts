@@ -1625,7 +1625,7 @@ function buildMinimalEntityResolutionPayload(
 }
 
 function estimatePayloadTokens(text: string): number {
-  // Browser/MCP 等未注入 Node tokenizer 的调用方仍需避免按 ASCII 密度低估中文结果。
+  // MCP 等未注入 Node tokenizer 的调用方仍需避免按 ASCII 密度低估中文结果。
   let cjkChars = 0
   let otherChars = 0
   for (const char of text) {

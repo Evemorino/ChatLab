@@ -413,7 +413,6 @@
     "checking": "檢查中...",
     "upToDate": "已是最新版本",
     "newVersionAvailable": "發現新版本 {version}",
-    "webUpdateHint": "請在終端機執行 clb update 後重啟服務。",
     "updateCheckFailed": "檢查更新失敗：{error}",
     "unknown": "未知",
     "privacy": {
@@ -616,7 +615,7 @@
       "description": "MCP 讓 AI 助手直接查詢你的聊天記錄。支援會話發現、關鍵字搜尋、成員統計、時間分佈等操作。",
       "toolCount": "{count} 個工具",
       "resourceCount": "{count} 個資源",
-      "installHint": "安裝 chatlab-cli 後，在 AI 用戶端中新增以下設定即可使用："
+      "installHint": "本 fork 不發佈 npm 包。先在倉庫複製中執行 pnpm --filter chatlab-mcp build，再把下方設定裡的 <CHATLAB_REPO> 替換為你的倉庫路徑："
     },
     "clients": {
       "other": "通用"
